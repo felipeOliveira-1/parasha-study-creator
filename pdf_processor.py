@@ -2,7 +2,7 @@ import logging
 import json
 import os
 import hashlib
-from typing import List, Dict
+from typing import List, Dict, Any
 import warnings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
@@ -432,7 +432,7 @@ class PDFProcessor:
 
     def query_similar_content(self, query: str, limit: int = 5) -> List[Dict]:
         """
-        Busca conteúdo similar ao query nos documentos.
+        Realiza uma busca híbrida (semântica + keywords) nos documentos.
         
         Args:
             query (str): Texto para buscar conteúdo similar
@@ -442,33 +442,270 @@ class PDFProcessor:
             List[Dict]: Lista de documentos similares
         """
         try:
+            # Configuração do vector store
             vector_store = SupabaseVectorStore(
                 client=self.supabase_client,
                 embedding=self.embeddings,
                 table_name="documents",
                 query_name="match_documents"
             )
-            print("\nBuscando conteúdo similar...")
+            print("\nRealizando busca semântica...")
             
-            # Usa similarity_search em vez de similarity_search_with_score
-            docs = vector_store.similarity_search(query, k=limit)
+            # Busca semântica (sem score já que não está disponível)
+            docs = vector_store.similarity_search(
+                query, 
+                k=limit * 2  # Buscamos mais resultados para depois filtrar
+            )
             
-            # Formata os resultados
-            results = []
-            for doc in docs:
-                source_name = doc.metadata.get('source', 'Desconhecido')
-                # Remove a extensão do arquivo para melhor apresentação
-                source_display = os.path.splitext(source_name)[0]
-                
-                results.append({
+            semantic_docs = [
+                {
                     'content': doc.page_content,
-                    'source': source_display,
+                    'source': doc.metadata.get('source', 'Desconhecido'),
                     'page': doc.metadata.get('page', doc.metadata.get('chunk_number', 'N/A')),
-                    'score': 1.0  # Como não temos score, usamos 1.0 como padrão
+                    'semantic_score': 1.0  # Como não temos score real, usamos 1.0
+                }
+                for doc in docs
+            ]
+            
+            keyword_docs = []
+            SEMANTIC_WEIGHT = 1.0
+            KEYWORD_WEIGHT = 0.0
+            
+            try:
+                # Usando ilike para busca de texto em vez de textSearch
+                keyword_results = self.supabase_client.table('documents').select(
+                    'content', 'metadata'
+                ).ilike('content', f'%{query}%').limit(limit * 5).execute()  # Aumentado para mais opções
+                
+                # Normaliza os scores de keywords e filtra por relevância
+                if keyword_results.data:
+                    # Extrai conceitos principais da query
+                    query_concepts = set(query.lower().split())
+                    
+                    for doc in keyword_results.data:
+                        content = doc['content'].lower()
+                        
+                        # Análise de relevância mais profunda
+                        # 1. Frequência dos termos
+                        term_count = sum(1 for term in query_concepts if term in content)
+                        term_score = term_count / len(query_concepts)
+                        
+                        # 2. Proximidade dos termos
+                        max_distance = 100  # caracteres
+                        proximity_score = 0
+                        
+                        for term1 in query_concepts:
+                            if term1 in content:
+                                pos1 = content.index(term1)
+                                for term2 in query_concepts:
+                                    if term2 != term1 and term2 in content:
+                                        pos2 = content.index(term2)
+                                        distance = abs(pos2 - pos1)
+                                        if distance <= max_distance:
+                                            proximity_score += 1 - (distance / max_distance)
+                        
+                        if len(query_concepts) > 1:
+                            proximity_score = proximity_score / (len(query_concepts) * (len(query_concepts) - 1))
+                        
+                        # 3. Contexto semântico
+                        context_terms = {
+                            'transformação': {'mudança', 'evolução', 'desenvolvimento', 'crescimento'},
+                            'espiritual': {'alma', 'espírito', 'divino', 'sagrado', 'santo'},
+                            'luta': {'batalha', 'desafio', 'confronto', 'superação'},
+                            'moral': {'ética', 'virtude', 'caráter', 'conduta'}
+                        }
+                        
+                        context_score = 0
+                        for term in query_concepts:
+                            if term in context_terms:
+                                related_terms = context_terms[term]
+                                context_matches = sum(1 for rt in related_terms if rt in content)
+                                if related_terms:
+                                    context_score += context_matches / len(related_terms)
+                        
+                        if query_concepts:
+                            context_score = context_score / len(query_concepts)
+                        
+                        # Score final combinado
+                        final_score = (
+                            term_score * 0.4 +
+                            proximity_score * 0.3 +
+                            context_score * 0.3
+                        )
+                        
+                        # Só inclui se tiver relevância mínima
+                        if final_score > 0.4:  # Threshold mais rigoroso
+                            keyword_docs.append({
+                                'content': doc['content'],
+                                'source': doc['metadata'].get('source', 'Desconhecido'),
+                                'page': doc['metadata'].get('page', doc['metadata'].get('chunk_number', 'N/A')),
+                                'keyword_score': final_score
+                            })
+                
+                # Ajusta os pesos para dar ainda mais importância à relevância semântica
+                SEMANTIC_WEIGHT = 0.85  # Aumentado para 0.85
+                KEYWORD_WEIGHT = 0.15   # Diminuído para 0.15
+                
+            except Exception as e:
+                logging.warning(f"Erro na busca por keywords: {str(e)}")
+                # Se houve erro na busca por keywords, usamos apenas semântica
+                SEMANTIC_WEIGHT = 1.0
+                KEYWORD_WEIGHT = 0.0
+                
+            # Combina os resultados
+            combined_results = {}
+            
+            # Adiciona resultados semânticos
+            for doc in semantic_docs:
+                key = (doc['source'], doc['content'])
+                if key not in combined_results:
+                    combined_results[key] = {
+                        'content': doc['content'],
+                        'source': doc['source'],
+                        'page': doc['page'],
+                        'semantic_score': doc['semantic_score'],
+                        'keyword_score': 0
+                    }
+            
+            # Adiciona resultados de keywords
+            for doc in keyword_docs:
+                key = (doc['source'], doc['content'])
+                if key in combined_results:
+                    combined_results[key]['keyword_score'] = doc['keyword_score']
+                else:
+                    combined_results[key] = {
+                        'content': doc['content'],
+                        'source': doc['source'],
+                        'page': doc['page'],
+                        'semantic_score': 0,
+                        'keyword_score': doc['keyword_score']
+                    }
+            
+            # Calcula score final (média ponderada)
+            final_results = []
+            for doc in combined_results.values():
+                final_score = (
+                    doc['semantic_score'] * SEMANTIC_WEIGHT +
+                    doc['keyword_score'] * KEYWORD_WEIGHT
+                )
+                
+                # Expande o contexto do resultado
+                expanded_content = self.expand_context(
+                    content=doc['content'],
+                    source=doc['source'],
+                    page=doc['page']
+                )
+                
+                final_results.append({
+                    'content': expanded_content,
+                    'source': os.path.splitext(doc['source'])[0],  # Remove a extensão
+                    'page': doc['page'],
+                    'score': final_score
                 })
             
-            return results
-            
+            # Ordena por score e limita aos top resultados
+            final_results.sort(key=lambda x: x['score'], reverse=True)
+            return final_results[:limit]
+        
         except Exception as e:
             pdf_logger.error(f"Erro ao buscar conteúdo similar: {str(e)}", exc_info=True)
-            raise
+            # Se algo der errado, tentamos retornar apenas os resultados semânticos básicos
+            try:
+                docs = vector_store.similarity_search(query, k=limit)
+                return [
+                    {
+                        'content': doc.page_content,
+                        'source': os.path.splitext(doc.metadata.get('source', 'Desconhecido'))[0],
+                        'page': doc.metadata.get('page', doc.metadata.get('chunk_number', 'N/A')),
+                        'score': 1.0
+                    }
+                    for doc in docs
+                ]
+            except:
+                raise  # Se mesmo a busca básica falhar, aí sim levantamos o erro
+
+    def expand_context(self, content: str, source: str, page: Any, full_content: bool = False) -> str:
+        """
+        Expande o contexto de um trecho encontrado, incluindo texto antes e depois.
+        
+        Args:
+            content (str): O trecho original encontrado
+            source (str): Nome do arquivo fonte
+            page: Número da página ou chunk
+            full_content (bool): Se True, busca o documento completo para expandir contexto
+        
+        Returns:
+            str: Texto expandido com contexto
+        """
+        try:
+            # Busca o documento original
+            results = self.supabase_client.table('documents').select(
+                'content', 'metadata'
+            ).eq('metadata->>source', source).execute()
+            
+            if not results.data:
+                return content
+            
+            # Organiza os chunks por página/número
+            chunks_by_page = {}
+            for doc in results.data:
+                doc_page = doc['metadata'].get('page', doc['metadata'].get('chunk_number', 0))
+                if doc_page not in chunks_by_page:
+                    chunks_by_page[doc_page] = []
+                chunks_by_page[doc_page].append(doc['content'])
+            
+            # Se page não é um número, tenta converter
+            if isinstance(page, str):
+                try:
+                    page = int(page)
+                except:
+                    page = 0
+                    
+            # Encontra o chunk atual e os adjacentes
+            current_chunks = chunks_by_page.get(page, [])
+            prev_chunks = chunks_by_page.get(page - 1, [])
+            next_chunks = chunks_by_page.get(page + 1, [])
+            
+            # Encontra o índice do chunk atual
+            current_index = -1
+            for i, chunk in enumerate(current_chunks):
+                if content in chunk:
+                    current_index = i
+                    break
+                    
+            if current_index == -1:
+                return content
+            
+            # Define quanto contexto incluir
+            if full_content:
+                # Inclui todo o conteúdo da página atual
+                expanded_content = "\n\n".join(current_chunks)
+            else:
+                # Inclui apenas chunks adjacentes na mesma página
+                context_chunks = []
+                
+                # Adiciona chunk anterior da mesma página
+                if current_index > 0:
+                    context_chunks.append(current_chunks[current_index - 1])
+                    
+                # Adiciona chunk atual
+                context_chunks.append(current_chunks[current_index])
+                
+                # Adiciona chunk seguinte da mesma página
+                if current_index < len(current_chunks) - 1:
+                    context_chunks.append(current_chunks[current_index + 1])
+                    
+                # Se não tem contexto na mesma página, tenta páginas adjacentes
+                if len(context_chunks) == 1:
+                    if prev_chunks and current_index == 0:
+                        context_chunks.insert(0, prev_chunks[-1])
+                    if next_chunks and current_index == len(current_chunks) - 1:
+                        context_chunks.append(next_chunks[0])
+                        
+                expanded_content = "\n\n".join(context_chunks)
+        
+            return expanded_content
+        
+        except Exception as e:
+            pdf_logger.warning(f"Erro ao expandir contexto: {e}")
+            return content

@@ -447,7 +447,21 @@ def generate_study_topics(parasha_text, client, retries=3):
         study_messages = [
             {
                 "role": "system",
-                "content": """You are a Rabbi specializing in Jewish studies, with deep knowledge of Torah, Talmud, Mishnah, Midrash, Halakha, Kabbalah, and Jewish thought. Your task is to create study topics in PT-BR that help deepen the understanding of the Torah portion. Always keep the scope within Orthodox Judaism."""
+                "content": """You are a Rabbi specializing in Jewish studies, with deep knowledge of Torah, Talmud, Mishnah, Midrash, Halakha, Kabbalah, and Jewish thought. Your task is to create study topics in PT-BR that help deepen the understanding of the Torah portion. Always keep the scope within Orthodox Judaism.
+
+When analyzing texts and providing references:
+1. Only use citations that are directly relevant to the topic being discussed
+2. Ensure the context of the citation matches the context of your analysis
+3. Explain clearly how each citation connects to the topic
+4. If you can't find a highly relevant citation, it's better to focus on the Torah analysis itself
+5. When discussing moral lessons, prioritize sources that discuss similar moral situations
+
+For each topic, include a section with classical rabbinic commentaries:
+1. Include perspectives from traditional commentators (Rashi, Ramban, Or HaChaim, Sforno, etc.)
+2. Present the commentaries in chronological order
+3. Show how different interpretations complement each other
+4. Highlight practical implications of each commentary
+5. Connect the classical interpretations to the moral lessons"""
             },
             {
                 "role": "user",
@@ -456,16 +470,18 @@ def generate_study_topics(parasha_text, client, retries=3):
                 Develop 3 study topics, each containing:
                 - Topic title
                 - Related Bible verse (reference and text)
-                
+                - Classical Rabbinic Commentaries section
                 - A question for discussion
-                
 
                 Format each topic like this:
                 ### [Topic Title]
                 **Bible Verse:** [Reference]
                 **The Verse:** "[Verse Text]"
 
-                
+                **Comentários Rabínicos Clássicos:**
+                - **Rashi:** [Commentary]
+                - **Ramban:** [Commentary]
+                - [Other commentators as relevant]
 
                 **Discussion Question:** [Your Question]
 
@@ -479,18 +495,54 @@ def generate_study_topics(parasha_text, client, retries=3):
         )
         topics_content = study_completion.choices[0].message.content
 
+        # Extrai as referências bíblicas para buscar comentários
+        bible_refs = []
+        for line in topics_content.split('\n'):
+            if '**Bible Verse:**' in line:
+                ref = line.split('**Bible Verse:**')[1].strip()
+                bible_refs.append(ref)
+
+        # Busca e adiciona comentários rabínicos para cada referência
+        for ref in bible_refs:
+            commentaries = get_commentaries(ref)
+            formatted_commentaries = format_commentaries(commentaries)
+            if formatted_commentaries:
+                # Substitui o placeholder dos comentários pelo conteúdo real
+                topics_content = topics_content.replace(
+                    "**Comentários Rabínicos Clássicos:**\n- **Rashi:** [Commentary]\n- **Ramban:** [Commentary]\n- [Other commentators as relevant]",
+                    formatted_commentaries.strip()
+                )
+
         # Adiciona os tópicos ao template
         template = f"# Estudo da Parashá\n\n## Resumo\n{summary}\n\n## Tópicos de Estudo\n{topics_content}\n"
-
+        
         # Gera o Mussar com as referências expandidas e dicas práticas
         mussar_messages = [
             {
                 "role": "system",
-                "content": """As a Rabbi, your task is to create a comprehensive Mussar analysis with practical tips for each topic. The Mussar analysis should include citations from available references, formatted as: "In [Book Name], we find: '[QUOTE]'. This teaching shows us that..." You should provide detailed explanations after each citation and demonstrate how it applies to modern life. You must avoid repeating the same source twice, and ensure that your response is in pt-br.
+                "content": """As a Rabbi, your task is to create a comprehensive Mussar analysis with practical tips for each topic. Follow these guidelines:
 
-                Additionally, for each topic, include a "Practical Tips" section with three suggestions.
+1. Citation Selection:
+   - Only use citations that directly relate to the core theme of the specific moral lesson being discussed
+   - The citation should naturally flow with your analysis, not feel forced
+   - If a highly relevant citation isn't available, prefer to focus on Torah analysis
 
-                Please ensure that your Mussar analysis and practical tips are insightful, relevant, and applicable to the topic at hand. Your response should be flexible enough to allow for various relevant and creative analyses and practical tips, while maintaining a clear and structured format for each topic."""
+2. Citation Integration:
+   - Before using a citation, explain the context of the situation or lesson
+   - After the citation, clearly explain how it connects to the topic
+   - Show how the wisdom applies both to the biblical story and modern life
+
+3. Practical Application:
+   - Ensure practical tips are specific and actionable
+   - Connect tips directly to the lessons from both the Torah portion and the cited texts
+   - Include a mix of spiritual, emotional, and practical advice
+
+4. Context Awareness:
+   - Consider the full context of both the Torah portion and the cited text
+   - Avoid using citations out of their original context
+   - Make connections that respect the depth of both sources
+
+Remember to maintain Orthodox Jewish perspectives and ensure all interpretations align with traditional Jewish thought."""
             },
             {
                 "role": "user",
@@ -691,6 +743,98 @@ def add_epub_to_supabase(epub_path: str):
     except Exception as e:
         logging.error(f"Erro ao adicionar EPUB ao Supabase: {str(e)}")
         raise
+
+def get_commentaries(reference: str) -> dict:
+    """
+    Busca comentários rabínicos clássicos do Sefaria para uma referência específica.
+    
+    Args:
+        reference (str): Referência bíblica (ex: "Genesis 32:28")
+        
+    Returns:
+        dict: Dicionário com comentários por comentarista
+    """
+    try:
+        # Lista de comentaristas para buscar
+        commentators = [
+            "Rashi",
+            "Ramban",
+            "Sforno",
+            "Or HaChaim",
+            "Ibn Ezra",
+            "Kli Yakar",
+            "Ohr HaChaim"
+        ]
+        
+        commentaries = {}
+        base_url = "https://www.sefaria.org/api/texts/"
+        
+        for commentator in commentators:
+            try:
+                # Constrói a URL para o comentário específico
+                commentary_ref = f"{commentator} on {reference}"
+                url = f"{base_url}{commentary_ref}?context=0&pad=0&commentary=0&language=en"
+                
+                # Faz a requisição
+                response = requests.get(url)
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Extrai o texto do comentário
+                    if 'text' in data:
+                        text = data['text']
+                        if isinstance(text, list):
+                            text = ' '.join([t for t in text if t])
+                        if text:
+                            commentaries[commentator] = text
+                
+            except Exception as e:
+                logging.warning(f"Erro ao buscar comentário de {commentator}: {str(e)}")
+                continue
+        
+        return commentaries
+        
+    except Exception as e:
+        logging.error(f"Erro ao buscar comentários: {str(e)}")
+        return {}
+
+def format_commentaries(commentaries: dict) -> str:
+    """
+    Formata os comentários rabínicos para exibição.
+    
+    Args:
+        commentaries (dict): Dicionário com comentários por comentarista
+        
+    Returns:
+        str: Texto formatado dos comentários
+    """
+    if not commentaries:
+        return ""
+        
+    formatted = "**Comentários Rabínicos Clássicos:**\n\n"
+    
+    # Ordem preferencial dos comentaristas
+    preferred_order = [
+        "Rashi",
+        "Ramban",
+        "Ibn Ezra",
+        "Sforno",
+        "Or HaChaim",
+        "Kli Yakar",
+        "Ohr HaChaim"
+    ]
+    
+    # Adiciona comentários na ordem preferencial
+    for commentator in preferred_order:
+        if commentator in commentaries:
+            formatted += f"- **{commentator}:** {commentaries[commentator]}\n\n"
+    
+    # Adiciona quaisquer outros comentários que não estejam na ordem preferencial
+    for commentator, commentary in commentaries.items():
+        if commentator not in preferred_order:
+            formatted += f"- **{commentator}:** {commentary}\n\n"
+    
+    return formatted
 
 def main():
     """Função principal do programa"""
