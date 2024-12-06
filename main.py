@@ -428,7 +428,7 @@ def generate_study_topics(parasha_text, client, retries=3):
                 {"role": "system", "content": "Você é um especialista em Torá."},
                 {
                     "role": "user",
-                    "content": f"Resuma o seguinte texto da Torá em português, destacando os principais acontecimentos e ensinamentos (máximo 300 caracteres):\n\n{parasha_text}"
+                    "content": f"Resuma o seguinte texto da Torá em português, destacando os principais acontecimentos e ensinamentos (máximo 600 caracteres):\n\n{parasha_text}"
                 }
             ]
         )
@@ -456,23 +456,20 @@ def generate_study_topics(parasha_text, client, retries=3):
                 Develop 3 study topics, each containing:
                 - Topic title
                 - Related Bible verse (reference and text)
-                - A deep reflection on the topic
+                
                 - A question for discussion
-                - 3 practical tips for applying the learning
+                
 
                 Format each topic like this:
                 ### [Topic Title]
                 **Bible Verse:** [Reference]
                 **The Verse:** "[Verse Text]"
 
-                **Reflection:** [Your Reflection]
+                
 
                 **Discussion Question:** [Your Question]
 
-                **Practical Tips:**
-                - [Tip 1]
-                - [Tip 2]
-                - [Tip 3]"""
+                """
             }
         ]
 
@@ -489,7 +486,7 @@ def generate_study_topics(parasha_text, client, retries=3):
         mussar_messages = [
             {
                 "role": "system",
-                "content": """As a Rabbi, your task is to create a comprehensive Mussar analysis with practical tips for each topic. The Mussar analysis should include citations from available references, formatted as: "In [Book Name], we find: '[QUOTE]'. This teaching shows us that..." You should provide detailed explanations after each citation and demonstrate how it applies to modern life. Avoid repeating the same source twice, and ensure that your response is in pt-br.
+                "content": """As a Rabbi, your task is to create a comprehensive Mussar analysis with practical tips for each topic. The Mussar analysis should include citations from available references, formatted as: "In [Book Name], we find: '[QUOTE]'. This teaching shows us that..." You should provide detailed explanations after each citation and demonstrate how it applies to modern life. You must avoid repeating the same source twice, and ensure that your response is in pt-br.
 
                 Additionally, for each topic, include a "Practical Tips" section with three suggestions.
 

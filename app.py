@@ -156,47 +156,55 @@ def display_chat_history():
 def gerar_estudo():
     st.title("Gerador de Estudo da Parashá")
     
-    # Garante que o diretório de estudos existe
-    os.makedirs(STUDY_FOLDER, exist_ok=True)
+    # Organização das parashiot por livro
+    TORAH_BOOKS = {
+        "Gênesis (Bereshit)": [
+            "Bereshit", "Noach", "Lech Lecha", "Vayera", "Chayei Sarah",
+            "Toldot", "Vayetzei", "Vayishlach", "Vayeshev", "Miketz",
+            "Vayigash", "Vayechi"
+        ],
+        "Êxodo (Shemot)": [
+            "Shemot", "Vaera", "Bo", "Beshalach", "Yitro", "Mishpatim",
+            "Terumah", "Tetzaveh", "Ki Tisa", "Vayakhel", "Pekudei"
+        ],
+        "Levítico (Vayikra)": [
+            "Vayikra", "Tzav", "Shemini", "Tazria", "Metzora", "Achrei Mot",
+            "Kedoshim", "Emor", "Behar", "Bechukotai"
+        ],
+        "Números (Bamidbar)": [
+            "Bamidbar", "Naso", "Beha'alotekha", "Shelach", "Korach",
+            "Chukat", "Balak", "Pinchas", "Matot", "Masei"
+        ],
+        "Deuteronômio (Devarim)": [
+            "Devarim", "Vaetchanan", "Eikev", "Re'eh", "Shoftim",
+            "Ki Teitzei", "Ki Tavo", "Nitzavim", "Vayeilech",
+            "Ha'azinu", "VeZot HaBerakhah"
+        ]
+    }
     
-    # Carrega o cache
-    cache = load_cache()
-    
-    # Adiciona uma caixa de seleção com os nomes das parashiot
-    parasha_name = st.selectbox(
-        "Selecione a Parashá",
-        options=sorted(PARASHA_REFERENCES.keys()),
-        help="Escolha a parashá que você deseja estudar"
+    # Seleção do livro da Torá
+    selected_book = st.selectbox(
+        "Selecione o Livro da Torá",
+        options=list(TORAH_BOOKS.keys()),
+        key="torah_book"
     )
     
+    # Seleção da parashá do livro escolhido
+    selected_parasha = st.selectbox(
+        "Selecione a Parashá",
+        options=TORAH_BOOKS[selected_book],
+        key="parasha"
+    )
+
     if st.button("Gerar Estudo"):
         try:
-            with st.spinner(f"Obtendo texto para {parasha_name}..."):
-                # Verifica cache
-                if parasha_name in cache:
-                    st.info(f"Usando texto em cache para {parasha_name}")
-                    parasha_text = cache[parasha_name]
-                else:
-                    st.info(f"Obtendo texto para {parasha_name}")
-                    parasha_text = get_parasha_text(parasha_name)
-                    cache[parasha_name] = parasha_text
-                    save_cache(cache)
+            with st.spinner("Obtendo texto da parashá..."):
+                parasha_text = get_parasha_text(selected_parasha)
             
             with st.spinner("Gerando estudo..."):
                 study = generate_study_topics(parasha_text, client)
                 
-                # Salva o estudo no diretório de estudos
-                now = datetime.now().strftime("%Y%m%d")
-                safe_name = parasha_name.lower().replace(' ', '_')
-                filename = f"estudo_{safe_name}_{now}.md"
-                filepath = os.path.join(STUDY_FOLDER, filename)
-                
-                with open(filepath, 'w', encoding='utf-8') as f:
-                    f.write(study)
-                
-                st.success(f"Estudo salvo em: {filename}")
-                
-                # Formata e exibe o conteúdo
+                # Adiciona CSS para o conteúdo do estudo
                 st.markdown("""
                 <style>
                 .study-content {
@@ -218,18 +226,24 @@ def gerar_estudo():
                 </style>
                 """, unsafe_allow_html=True)
                 
+                # Exibe o estudo gerado
                 st.markdown(f'<div class="study-content">{study}</div>', unsafe_allow_html=True)
                 
-                # Adiciona botão de download
-                st.download_button(
-                    label="📥 Download do Estudo",
-                    data=study,
-                    file_name=filename,
-                    mime="text/markdown",
-                )
+                # Salva o estudo em um arquivo
+                today = datetime.now().strftime("%Y-%m-%d")
+                safe_parasha_name = ''.join(c for c in selected_parasha if c.isalnum() or c in (' ', '-', '_'))
+                output_file = os.path.join(STUDY_FOLDER, f"estudo_{safe_parasha_name}_{today}.md")
+                
+                # Cria o diretório se não existir
+                os.makedirs(STUDY_FOLDER, exist_ok=True)
+                
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(study)
+                
+                st.success(f"Estudo salvo em: {output_file}")
                 
         except Exception as e:
-            st.error(f"Erro ao gerar estudo: {str(e)}\n\nVerifique se o nome da parashá está correto e tente novamente.")
+            st.error(f"Erro ao gerar estudo: {str(e)}")
 
 def main():
     local_css()
