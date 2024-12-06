@@ -449,72 +449,133 @@ def generate_study_topics(parasha_text, client, retries=3):
                 "role": "system",
                 "content": """You are a Rabbi specializing in Jewish studies, with deep knowledge of Torah, Talmud, Mishnah, Midrash, Halakha, Kabbalah, and Jewish thought. Your task is to create study topics in PT-BR that help deepen the understanding of the Torah portion. Always keep the scope within Orthodox Judaism.
 
-When analyzing texts and providing references:
-1. Only use citations that are directly relevant to the topic being discussed
-2. Ensure the context of the citation matches the context of your analysis
-3. Explain clearly how each citation connects to the topic
-4. If you can't find a highly relevant citation, it's better to focus on the Torah analysis itself
-5. When discussing moral lessons, prioritize sources that discuss similar moral situations
+When creating study topics, follow this structure for each topic:
 
-For each topic, include a section with classical rabbinic commentaries:
-1. Include perspectives from traditional commentators (Rashi, Ramban, Or HaChaim, Sforno, etc.)
-2. Present the commentaries in chronological order
-3. Show how different interpretations complement each other
-4. Highlight practical implications of each commentary
-5. Connect the classical interpretations to the moral lessons"""
+1. Topic Title (### [Título])
+   - Choose a title that captures the main theme or lesson
+   - Be specific and engaging
+
+2. Narrative Context (**Contexto Narrativo**)
+   - Provide the historical and textual context
+   - Explain what happened before and after
+   - Help readers understand the setting
+
+3. Bible Verse (**Versículo Bíblico**)
+   - Reference and full text
+   - Choose the most relevant verse for the topic
+
+4. Classical Rabbinic Commentaries (**Comentários Rabínicos Clássicos**)
+   - Present commentaries in chronological order
+   - Show how interpretations complement each other
+   - Connect commentaries to the main theme
+
+5. Discussion Question (**Pergunta para Discussão**)
+   - Create thought-provoking questions
+   - Connect to both ancient and modern contexts
+   - Encourage personal reflection
+
+6. Mussar Analysis (**Análise Mussar**)
+   - Focus on character development and moral lessons
+   - Use relevant citations from Mussar literature
+   - Connect the lesson to personal growth
+
+7. Practical Tips (**Dicas Práticas**)
+   - Provide specific, actionable advice
+   - Include spiritual and practical suggestions
+   - Make tips relevant to modern life
+
+Format each topic exactly like this:
+### [Título do Tópico]
+
+**Contexto Narrativo:**
+[Explicação do contexto histórico e textual]
+
+**Versículo Bíblico:** [Referência]
+**O Versículo:** "[Texto do versículo]"
+
+**Comentários Rabínicos Clássicos:**
+[Será preenchido automaticamente com comentários do Sefaria]
+
+**Pergunta para Discussão:**
+[Pergunta reflexiva]
+
+**Análise Mussar:**
+[Análise moral e de desenvolvimento de caráter]
+
+**Dicas Práticas:**
+- [Dica 1]
+- [Dica 2]
+- [Dica 3]"""
             },
             {
                 "role": "user",
                 "content": f"""Based on this summary of the parasha: {summary}
 
-                Develop 3 study topics, each containing:
-                - Topic title
-                - Related Bible verse (reference and text)
-                - Classical Rabbinic Commentaries section
-                - A question for discussion
+                Develop 3 study topics following the exact structure provided. Focus on the most significant moral lessons and transformative moments in the parasha.
 
-                Format each topic like this:
-                ### [Topic Title]
-                **Bible Verse:** [Reference]
-                **The Verse:** "[Verse Text]"
-
-                **Comentários Rabínicos Clássicos:**
-                - **Rashi:** [Commentary]
-                - **Ramban:** [Commentary]
-                - [Other commentators as relevant]
-
-                **Discussion Question:** [Your Question]
-
-                """
+                Remember to:
+                1. Keep the context clear and concise
+                2. Choose verses that best represent each topic
+                3. Create thought-provoking discussion questions
+                4. Connect ancient wisdom to modern life
+                5. Provide practical, actionable advice"""
             }
         ]
 
+        # Gera os tópicos de estudo
         study_completion = client.chat.completions.create(
             model=OPENAI_MODEL,
-            messages=study_messages
+            messages=study_messages,
+            temperature=0.7  # Ajustado para mais criatividade nas análises
         )
         topics_content = study_completion.choices[0].message.content
 
         # Extrai as referências bíblicas para buscar comentários
         bible_refs = []
+        current_ref = None
         for line in topics_content.split('\n'):
-            if '**Bible Verse:**' in line:
-                ref = line.split('**Bible Verse:**')[1].strip()
-                bible_refs.append(ref)
+            if '**Versículo Bíblico:**' in line:
+                # Extrai a referência (ex: Genesis 32:4)
+                ref_line = line.split('**Versículo Bíblico:**')[1].strip()
+                if ref_line:
+                    current_ref = ref_line
+            elif '**O Versículo:**' in line and current_ref:
+                bible_refs.append(current_ref)
+                current_ref = None
 
         # Busca e adiciona comentários rabínicos para cada referência
         for ref in bible_refs:
-            commentaries = get_commentaries(ref)
-            formatted_commentaries = format_commentaries(commentaries)
+            logging.info(f"Referência original: {ref}")
+            normalized_ref = normalize_bible_reference(ref)
+            logging.info(f"Referência normalizada: {normalized_ref}")
+            
+            commentaries = get_commentaries(normalized_ref)
+            translated_commentaries = translate_commentaries(commentaries, client)
+            formatted_commentaries = format_commentaries(translated_commentaries)
             if formatted_commentaries:
                 # Substitui o placeholder dos comentários pelo conteúdo real
+                placeholder = "**Comentários Rabínicos Clássicos:**\n[Será preenchido automaticamente com comentários do Sefaria]"
                 topics_content = topics_content.replace(
-                    "**Comentários Rabínicos Clássicos:**\n- **Rashi:** [Commentary]\n- **Ramban:** [Commentary]\n- [Other commentators as relevant]",
-                    formatted_commentaries.strip()
+                    placeholder,
+                    formatted_commentaries.strip(),
+                    1  # Substitui apenas a primeira ocorrência para cada referência
                 )
+                logging.info(f"Comentários adicionados para {ref}")
+            else:
+                logging.warning(f"Nenhum comentário encontrado para {ref}")
+        
+        # Adiciona os tópicos ao template com uma introdução
+        template = f"""# Estudo da Parashá
 
-        # Adiciona os tópicos ao template
-        template = f"# Estudo da Parashá\n\n## Resumo\n{summary}\n\n## Tópicos de Estudo\n{topics_content}\n"
+## Resumo
+{summary}
+
+## Introdução ao Estudo
+Este estudo explora três aspectos fundamentais da parashá, cada um oferecendo uma perspectiva única sobre as lições morais e espirituais do texto. Cada tópico inclui contexto histórico, comentários rabínicos tradicionais, análise mussar e aplicações práticas para nossa vida moderna.
+
+## Tópicos de Estudo
+{topics_content}
+"""
         
         # Gera o Mussar com as referências expandidas e dicas práticas
         mussar_messages = [
@@ -798,6 +859,55 @@ def get_commentaries(reference: str) -> dict:
         logging.error(f"Erro ao buscar comentários: {str(e)}")
         return {}
 
+def translate_commentaries(commentaries: dict, client) -> dict:
+    """
+    Traduz e padroniza os comentários rabínicos do inglês para português usando a OpenAI.
+    
+    Args:
+        commentaries (dict): Dicionário com comentários por comentarista
+        client: Cliente OpenAI
+        
+    Returns:
+        dict: Dicionário com comentários traduzidos e padronizados
+    """
+    if not commentaries:
+        return {}
+    
+    translated = {}
+    for commentator, text in commentaries.items():
+        try:
+            completion = client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """Você é um especialista em tradução e adaptação de textos rabínicos.
+                        Sua tarefa é:
+                        1. Traduzir o comentário para português brasileiro
+                        2. Resumir o comentário em no máximo 3-4 linhas, focando nos pontos principais
+                        3. Manter termos judaicos importantes em hebraico (transliterado) com breve explicação
+                        4. Usar linguagem clara e acessível, mas mantendo o tom erudito
+                        5. Seguir este formato:
+                           "[Ponto principal do comentário]. [Explicação breve]. [Se relevante: termo em hebraico]. 
+                           Para uma análise mais detalhada, consulte o texto original de [Nome do Comentarista]."
+                        """
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Adapte o seguinte comentário rabínico de {commentator}:\n\n{text}"
+                    }
+                ],
+                temperature=0.3
+            )
+            translated[commentator] = completion.choices[0].message.content
+            logging.info(f"Comentário de {commentator} traduzido e padronizado com sucesso")
+        except Exception as e:
+            logging.error(f"Erro ao traduzir comentário de {commentator}: {str(e)}")
+            # Em caso de erro, cria uma versão simplificada do texto original
+            translated[commentator] = f"Comentário original de {commentator} (em inglês): {text[:100]}... [texto completo disponível na fonte]"
+    
+    return translated
+
 def format_commentaries(commentaries: dict) -> str:
     """
     Formata os comentários rabínicos para exibição.
@@ -809,7 +919,7 @@ def format_commentaries(commentaries: dict) -> str:
         str: Texto formatado dos comentários
     """
     if not commentaries:
-        return ""
+        return "**Comentários Rabínicos Clássicos:**\n\nNenhum comentário encontrado para este versículo."
         
     formatted = "**Comentários Rabínicos Clássicos:**\n\n"
     
@@ -827,14 +937,45 @@ def format_commentaries(commentaries: dict) -> str:
     # Adiciona comentários na ordem preferencial
     for commentator in preferred_order:
         if commentator in commentaries:
-            formatted += f"- **{commentator}:** {commentaries[commentator]}\n\n"
+            formatted += f"**{commentator}**: {commentaries[commentator].strip()}\n\n"
     
     # Adiciona quaisquer outros comentários que não estejam na ordem preferencial
     for commentator, commentary in commentaries.items():
         if commentator not in preferred_order:
-            formatted += f"- **{commentator}:** {commentary}\n\n"
+            formatted += f"**{commentator}**: {commentary.strip()}\n\n"
     
-    return formatted
+    return formatted.strip()
+
+def normalize_bible_reference(ref: str) -> str:
+    """
+    Normaliza uma referência bíblica para o formato aceito pelo Sefaria.
+    
+    Args:
+        ref (str): Referência bíblica (ex: "Gênesis 32:28")
+        
+    Returns:
+        str: Referência normalizada (ex: "Genesis 32:28")
+    """
+    # Mapeamento de nomes em português para inglês
+    book_names = {
+        "Gênesis": "Genesis",
+        "Êxodo": "Exodus",
+        "Levítico": "Leviticus",
+        "Números": "Numbers",
+        "Deuteronômio": "Deuteronomy"
+    }
+    
+    # Separa o nome do livro do capítulo e versículo
+    parts = ref.split()
+    if len(parts) >= 2:
+        book = parts[0]
+        rest = ' '.join(parts[1:])
+        
+        # Substitui o nome do livro se estiver no mapeamento
+        normalized_book = book_names.get(book, book)
+        return f"{normalized_book} {rest}"
+    
+    return ref
 
 def main():
     """Função principal do programa"""
