@@ -74,6 +74,38 @@ def local_css():
         .chat-message p, .chat-message span, .chat-message div {
             color: #000000 !important;
         }
+        /* Estilo específico para o texto hebraico na sidebar */
+        .sidebar-hebrew {
+            color: #ffffff !important;  /* Texto branco */
+            font-size: 1.2em;
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);  /* Sombra suave para melhor legibilidade */
+        }
+        .new-sidebar-hebrew {
+            color: #000000 !important;  /* Texto preto */
+            font-size: 1.5em;
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            margin: 10px 0;
+        }
+        /* Estilo específico para o texto hebraico na sidebar */
+        .study-content {
+            background-color: #f8f9fa;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            border-left: 5px solid #2778c4;
+            margin: 1rem 0;
+            color: #000000;
+        }
+        .study-content h1, .study-content h2, .study-content h3 {
+            color: #1f2937;
+            margin-top: 1.5rem;
+        }
+        .study-content ul {
+            margin-left: 1.5rem;
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -178,7 +210,6 @@ def main():
     # Sidebar
     with st.sidebar:
         st.title("✡️ Parasha Study Creator")
-        st.markdown('<p class="hebrew-text">ברוכים הבאים</p>', unsafe_allow_html=True)
         
         # Opções do modo
         mode = st.radio(
