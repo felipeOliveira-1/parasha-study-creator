@@ -41,49 +41,97 @@ st.set_page_config(
 def local_css():
     st.markdown("""
         <style>
+        /* Estilo global */
+        .stApp {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        /* Estilo da sidebar */
+        .css-1d391kg {
+            background-color: #2d2d2d;
+        }
+        
+        /* Estilo das mensagens do chat */
         .chat-message {
             padding: 1.5rem;
             border-radius: 0.5rem;
             margin-bottom: 1rem;
             display: flex;
             flex-direction: column;
-            color: #000000;  /* Garante texto preto */
-        }
-        .user-message {
-            background-color: #e6f3ff;
-            border-left: 5px solid #2778c4;
-            color: #000000;  /* Texto preto para mensagens do usuário */
-        }
-        .assistant-message {
-            background-color: #f0f2f6;
+            background-color: #2d2d2d;
             border-left: 5px solid #464b54;
-            color: #000000;  /* Texto preto para mensagens do rabino */
+            color: #e0e0e0;
         }
+        
+        .user-message {
+            background-color: #1e2a3a;
+            border-left: 5px solid #2778c4;
+        }
+        
+        .assistant-message {
+            background-color: #2d2d2d;
+            border-left: 5px solid #464b54;
+        }
+        
         .refs-message {
-            background-color: #fff3e6;
+            background-color: #2d2017;
             border-left: 5px solid #ff9d00;
             font-size: 0.9em;
-            color: #000000;  /* Texto preto para referências */
         }
-        /* Garante que todos os textos dentro das mensagens sejam pretos */
+        
+        /* Garante que todos os textos dentro das mensagens sejam claros */
         .chat-message p, .chat-message span, .chat-message div {
-            color: #000000 !important;
+            color: #e0e0e0 !important;
         }
-        /* Estilo específico para o texto do estudo */
+        
+        /* Estilo do conteúdo de estudo */
         .study-content {
-            background-color: #f8f9fa;
+            background-color: #2d2d2d;
             padding: 2rem;
             border-radius: 0.5rem;
             border-left: 5px solid #2778c4;
             margin: 1rem 0;
-            color: #000000;
+            color: #e0e0e0;
         }
+        
         .study-content h1, .study-content h2, .study-content h3 {
-            color: #1f2937;
+            color: #e0e0e0;
             margin-top: 1.5rem;
         }
+        
         .study-content ul {
             margin-left: 1.5rem;
+            color: #e0e0e0;
+        }
+        
+        /* Estilo do input de texto */
+        .stTextInput > div > div {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-color: #464b54;
+        }
+        
+        /* Estilo dos botões */
+        .stButton > button {
+            background-color: #2778c4;
+            color: #ffffff;
+            border: none;
+        }
+        
+        .stButton > button:hover {
+            background-color: #1e5c94;
+        }
+        
+        /* Estilo dos radio buttons */
+        .stRadio > div {
+            color: #e0e0e0;
+        }
+        
+        /* Estilo dos selects */
+        .stSelectbox > div > div {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -101,9 +149,9 @@ def display_chat_history():
     """Exibe o histórico do chat com estilo personalizado"""
     for message in st.session_state.messages[1:]:  # Pula o system prompt
         if message["role"] == "user":
-            st.markdown(f'<div class="chat-message user-message"><strong style="color: #000000;">🙋‍♂️ Você:</strong> <span style="color: #000000;">{message["content"]}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="chat-message user-message"><strong style="color: #e0e0e0;">🙋‍♂️ Você:</strong> <span style="color: #e0e0e0;">{message["content"]}</span></div>', unsafe_allow_html=True)
         elif message["role"] == "assistant":
-            st.markdown(f'<div class="chat-message assistant-message"><strong style="color: #000000;">👨‍🏫 Rabino:</strong> <span style="color: #000000;">{message["content"]}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="chat-message assistant-message"><strong style="color: #e0e0e0;">👨‍🏫 Rabino:</strong> <span style="color: #e0e0e0;">{message["content"]}</span></div>', unsafe_allow_html=True)
 
 def gerar_estudo():
     st.title("Gerador de Estudo da Parashá")
@@ -152,19 +200,20 @@ def gerar_estudo():
                 st.markdown("""
                 <style>
                 .study-content {
-                    background-color: #f8f9fa;
+                    background-color: #2d2d2d;
                     padding: 2rem;
                     border-radius: 0.5rem;
                     border-left: 5px solid #2778c4;
                     margin: 1rem 0;
-                    color: #000000;
+                    color: #e0e0e0;
                 }
                 .study-content h1, .study-content h2, .study-content h3 {
-                    color: #1f2937;
+                    color: #e0e0e0;
                     margin-top: 1.5rem;
                 }
                 .study-content ul {
                     margin-left: 1.5rem;
+                    color: #e0e0e0;
                 }
                 </style>
                 """, unsafe_allow_html=True)
@@ -267,7 +316,7 @@ def main():
                     references = get_references_for_query(st.session_state.pdf_processor, query)
                 
                 if references:
-                    st.markdown(f'<div class="chat-message refs-message"><strong style="color: #000000;">📚 Referências encontradas:</strong><br><span style="color: #000000;">{references}</span></div>', 
+                    st.markdown(f'<div class="chat-message refs-message"><strong style="color: #e0e0e0;">📚 Referências encontradas:</strong><br><span style="color: #e0e0e0;">{references}</span></div>', 
                               unsafe_allow_html=True)
                     
                     context_prompt = f"""Pergunta do usuário: {query}
