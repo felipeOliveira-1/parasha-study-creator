@@ -31,7 +31,7 @@ client = OpenAI(
 
 # Configuração da página
 st.set_page_config(
-    page_title="Parasha Study Creator",
+    page_title="Estudo de Torá",
     page_icon="✡️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -209,7 +209,7 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.title("✡️ Parasha Study Creator")
+        st.title("✡️ Estudo de Torá com IA")
         
         # Opções do modo
         mode = st.radio(
