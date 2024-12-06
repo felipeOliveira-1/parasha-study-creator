@@ -65,32 +65,11 @@ def local_css():
             font-size: 0.9em;
             color: #000000;  /* Texto preto para referências */
         }
-        .hebrew-text {
-            font-family: 'Times New Roman', serif;
-            font-size: 1.2em;
-            color: #000000;  /* Texto preto para hebraico */
-        }
         /* Garante que todos os textos dentro das mensagens sejam pretos */
         .chat-message p, .chat-message span, .chat-message div {
             color: #000000 !important;
         }
-        /* Estilo específico para o texto hebraico na sidebar */
-        .sidebar-hebrew {
-            color: #ffffff !important;  /* Texto branco */
-            font-size: 1.2em;
-            font-family: 'Times New Roman', serif;
-            text-align: center;
-            margin: 10px 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);  /* Sombra suave para melhor legibilidade */
-        }
-        .new-sidebar-hebrew {
-            color: #000000 !important;  /* Texto preto */
-            font-size: 1.5em;
-            font-family: 'Times New Roman', serif;
-            text-align: center;
-            margin: 10px 0;
-        }
-        /* Estilo específico para o texto hebraico na sidebar */
+        /* Estilo específico para o texto do estudo */
         .study-content {
             background-color: #f8f9fa;
             padding: 2rem;
