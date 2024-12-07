@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, List, Optional
 from openai import OpenAI
+from prompt_library import PromptLibrary
 
 class StudyGenerator:
     def __init__(self, openai_client: OpenAI):
@@ -30,46 +31,14 @@ class StudyGenerator:
             completion = self.client.chat.completions.create(
                 model="gpt-4",  # ou outro modelo configurado
                 messages=[
-                    {"role": "system", "content": "Você é um especialista em Torá."},
-                    {
-                        "role": "user",
-                        "content": f"Resuma o seguinte texto da Torá em português, destacando os principais acontecimentos e ensinamentos (máximo 300 caracteres):\n\n{parasha_text}"
-                    }
+                    PromptLibrary.get_parasha_summary_prompt(parasha_text)
                 ]
             )
             summary = completion.choices[0].message.content
             
             # Gera os tópicos de estudo
             study_messages = [
-                {
-                    "role": "system",
-                    "content": """You are a Rabbi specializing in Jewish studies, with deep knowledge of Torah, Talmud, Mishnah, Midrash, Halakha, Kabbalah, and Jewish thought. Your task is to create study topics in PT-BR that help deepen the understanding of the Torah portion. Always keep the scope within Orthodox Judaism."""
-                },
-                {
-                    "role": "user",
-                    "content": f"""Based on this summary of the parasha: {summary}
-
-                    Develop 3 study topics, each containing:
-                    - Topic title
-                    - Related Bible verse (reference and text)
-                    - A deep reflection on the topic
-                    - A question for discussion
-                    - 3 practical tips for applying the learning
-
-                    Format each topic like this:
-                    ### [Topic Title]
-                    **Bible Verse:** [Reference]
-                    **The Verse:** "[Verse Text]"
-
-                    **Reflection:** [Your Reflection]
-
-                    **Discussion Question:** [Your Question]
-
-                    **Practical Tips:**
-                    - [Tip 1]
-                    - [Tip 2]
-                    - [Tip 3]"""
-                }
+                PromptLibrary.get_study_topics_prompt(summary)
             ]
 
             study_completion = self.client.chat.completions.create(
@@ -83,7 +52,16 @@ class StudyGenerator:
 
             # Gera o Mussar com as referências
             if references:
-                mussar_content = self._generate_mussar_analysis(topics_content, references)
+                mussar_messages = [
+                    PromptLibrary.get_mussar_prompt(topics_content, references)
+                ]
+
+                completion = self.client.chat.completions.create(
+                    model="gpt-4",
+                    messages=mussar_messages
+                )
+                
+                mussar_content = completion.choices[0].message.content
                 template += f"\n## Mussar\n{mussar_content}\n"
 
             return template
@@ -108,19 +86,7 @@ class StudyGenerator:
         """
         try:
             mussar_messages = [
-                {
-                    "role": "system",
-                    "content": """As a Rabbi, your task is to create a comprehensive Mussar analysis with practical tips for each topic. The Mussar analysis should include citations from available references, formatted as: "In [Book Name], we find: '[QUOTE]'. This teaching shows us that..." You should provide detailed explanations after each citation and demonstrate how it applies to modern life. Avoid repeating the same source twice, and ensure that your response is in pt-br."""
-                },
-                {
-                    "role": "user",
-                    "content": f"""Crie uma análise Mussar com citações das referências e dicas práticas para cada tópico:
-
-                    Tópicos: {topics_content}
-
-                    Referências Disponíveis:
-                    {references}"""
-                }
+                PromptLibrary.get_mussar_prompt(topics_content, references)
             ]
 
             completion = self.client.chat.completions.create(
