@@ -29,7 +29,7 @@ class StudyGenerator:
         try:
             # Gera um resumo do texto da parashá
             completion = self.client.chat.completions.create(
-                model="gpt-4",  # ou outro modelo configurado
+                model="gpt-4o",  # ou outro modelo configurado
                 messages=[
                     PromptLibrary.get_parasha_summary_prompt(parasha_text)
                 ]
@@ -42,7 +42,7 @@ class StudyGenerator:
             ]
 
             study_completion = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o",
                 messages=study_messages
             )
             topics_content = study_completion.choices[0].message.content
@@ -57,7 +57,7 @@ class StudyGenerator:
                 ]
 
                 completion = self.client.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-4o",
                     messages=mussar_messages
                 )
                 
@@ -90,7 +90,7 @@ class StudyGenerator:
             ]
 
             completion = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o",
                 messages=mussar_messages
             )
             

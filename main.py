@@ -24,7 +24,7 @@ if not os.getenv("SUPABASE_URL") or not os.getenv("SUPABASE_SERVICE_KEY"):
     exit()
 
 # Constantes e configurações
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_ORG = os.getenv("OPENAI_ORG", None)
 PDF_FOLDER = os.getenv("PDF_FOLDER", "livros")
