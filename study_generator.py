@@ -1,5 +1,6 @@
+import json
 import logging
-from typing import Dict, List, Optional
+from typing import List, Dict, Optional
 from openai import OpenAI
 from prompt_library import PromptLibrary
 
@@ -72,6 +73,54 @@ class StudyGenerator:
                 self.logger.info(f"Tentando novamente... ({retries} tentativas restantes)")
                 return self.generate_study_topics(parasha_text, references, retries - 1)
             raise
+
+    def generate_mussar_analysis(self, topics_content: str) -> str:
+        """
+        Gera a análise Mussar baseada nos tópicos e referências.
+        """
+        try:
+            # Busca referências do Supabase
+            references = self.reference_manager.get_references()
+            
+            # Busca textos de Mussar do Sefaria
+            sefaria_texts = get_mussar_texts(self.parasha_ref)
+            
+            # Combina as referências
+            all_references = []
+            
+            # Adiciona referências do Supabase
+            for ref in references:
+                all_references.append({
+                    'source': ref.get('title', ''),
+                    'text': ref.get('content', ''),
+                    'type': 'supabase'
+                })
+            
+            # Adiciona textos do Sefaria
+            for text in sefaria_texts:
+                all_references.append({
+                    'source': text['source'],
+                    'text': text['text'],
+                    'ref': text['ref'],
+                    'type': 'sefaria'
+                })
+            
+            # Gera a análise Mussar
+            prompt = PromptLibrary.get_mussar_prompt(topics_content, all_references)
+            messages = [prompt]
+            
+            mussar_content = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1500
+            ).choices[0].message.content
+
+            return mussar_content
+
+        except Exception as e:
+            logging.error(f"Erro ao gerar análise Mussar: {str(e)}")
+            return "Erro ao gerar análise Mussar. Por favor, tente novamente."
 
     def _generate_mussar_analysis(self, topics_content: str, references: List[Dict]) -> str:
         """

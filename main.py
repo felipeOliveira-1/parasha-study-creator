@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+from typing import List, Dict
 from openai import OpenAI
 from datetime import datetime
 from dotenv import load_dotenv
@@ -474,12 +475,7 @@ When creating study topics, follow this structure for each topic:
    - Connect to both ancient and modern contexts
    - Encourage personal reflection
 
-6. Mussar Analysis (**Análise Mussar**)
-   - Focus on character development and moral lessons
-   - Use relevant citations from Mussar literature
-   - Connect the lesson to personal growth
-
-7. Practical Tips (**Dicas Práticas**)
+6. Practical Tips (**Dicas Práticas**)
    - Provide specific, actionable advice
    - Include spiritual and practical suggestions
    - Make tips relevant to modern life
@@ -498,9 +494,6 @@ Format each topic exactly like this:
 
 **Pergunta para Discussão:**
 [Pergunta reflexiva]
-
-**Análise Mussar:**
-[Análise moral e de desenvolvimento de caráter]
 
 **Dicas Práticas:**
 - [Dica 1]
@@ -976,6 +969,81 @@ def normalize_bible_reference(ref: str) -> str:
         return f"{normalized_book} {rest}"
     
     return ref
+
+def get_mussar_texts(parasha_ref: str) -> List[Dict]:
+    """
+    Busca textos de Mussar relacionados à parashá no Sefaria.
+    
+    Args:
+        parasha_ref: Referência da parashá no formato do Sefaria
+        
+    Returns:
+        List[Dict]: Lista de textos de Mussar encontrados
+    """
+    mussar_sources = [
+        "Orchot Tzadikim",
+        "Mesilat Yesharim",
+        "Chovot HaLevavot",
+        "Shaarei Teshuvah",
+        "Pele Yoetz"
+    ]
+    
+    mussar_texts = []
+    
+    try:
+        # Busca links relacionados
+        url = f"https://www.sefaria.org/api/related/{parasha_ref}"
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Filtra links de fontes Mussar
+            for link in data.get('links', []):
+                for source in mussar_sources:
+                    if source in link.get('ref', ''):
+                        # Busca o texto completo do link
+                        text_url = f"https://www.sefaria.org/api/texts/{link['ref']}"
+                        text_response = requests.get(text_url)
+                        if text_response.status_code == 200:
+                            text_data = text_response.json()
+                            if 'text' in text_data:
+                                text = text_data['text']
+                                if isinstance(text, list):
+                                    text = ' '.join([t for t in text if t])
+                                mussar_texts.append({
+                                    'source': source,
+                                    'ref': link['ref'],
+                                    'text': text
+                                })
+        
+        # Busca textos adicionais por palavras-chave
+        for source in mussar_sources:
+            url = f"https://www.sefaria.org/api/texts/search/{parasha_ref}?citing_only=1&citing_text={source}"
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                for hit in data.get('hits', {}).get('hits', []):
+                    source_ref = hit['_source'].get('ref', '')
+                    if source_ref:
+                        text_url = f"https://www.sefaria.org/api/texts/{source_ref}"
+                        text_response = requests.get(text_url)
+                        if text_response.status_code == 200:
+                            text_data = text_response.json()
+                            if 'text' in text_data:
+                                text = text_data['text']
+                                if isinstance(text, list):
+                                    text = ' '.join([t for t in text if t])
+                                mussar_texts.append({
+                                    'source': source,
+                                    'ref': source_ref,
+                                    'text': text
+                                })
+        
+        return mussar_texts
+        
+    except Exception as e:
+        logging.error(f"Erro ao buscar textos Mussar: {str(e)}")
+        return []
 
 def main():
     """Função principal do programa"""

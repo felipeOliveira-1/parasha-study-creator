@@ -3,6 +3,9 @@ Biblioteca de prompts estruturados para o Parasha Study Creator.
 Implementa templates XML para diferentes tipos de análise e geração de conteúdo.
 """
 
+import os
+from typing import List, Dict
+
 class PromptLibrary:
     @staticmethod
     def get_parasha_summary_prompt(parasha_text: str) -> dict:
@@ -95,61 +98,43 @@ class PromptLibrary:
         }
 
     @staticmethod
-    def get_mussar_prompt(topics_content: str, references: list) -> dict:
-        """
-        Template para análise Mussar.
-        """
-        references_text = "\n".join([f"- {ref.get('title', 'Unknown')}" for ref in references])
+    def get_mussar_prompt(topics_content: str, references: List[Dict]) -> Dict:
+        """Retorna o prompt para gerar a análise Mussar."""
+        references_text = ""
+        if references:
+            references_text = "\n\nReferências encontradas:\n"
+            for ref in references:
+                if ref['type'] == 'supabase':
+                    references_text += f"- {ref['text']} (Fonte: {ref['source']})\n"
+                else:  # sefaria
+                    references_text += f"- {ref['text']} (Fonte: {ref['source']}, Referência: {ref['ref']})\n"
+
         return {
             "role": "system",
-            "content": """
-<prompt>
-    <purpose>Gerar análise Mussar focada em crescimento pessoal mensurável</purpose>
-    <context>
-        <topics>{topics}</topics>
-        <available_references>
-            {references}
-        </available_references>
-    </context>
-    <strict_rules>
-        <rule>Crie uma análise Mussar concisa por tópico (máximo 200 palavras)</rule>
-        <rule>Use exatamente 1 citação relevante por tópico (máximo 20 palavras)</rule>
-        <rule>Cada exercício deve ser específico e mensurável</rule>
-        <rule>Foque em um único middah (traço de caráter) por tópico</rule>
-    </strict_rules>
-    <output_format>
-        <mussar_analysis>
-            <topic_analysis>
-                <topic_title>[Título do Tópico]</topic_title>
-                <middah>
-                    <name>[Nome do traço em hebraico e português]</name>
-                    <definition>[Definição em exatamente 10 palavras]</definition>
-                    <importance>[Por que é importante hoje - 20 palavras]</importance>
-                </middah>
-                <citation>
-                    <source>[Nome da fonte]</source>
-                    <quote>[Citação - máximo 20 palavras]</quote>
-                    <application>[Como aplicar - 20 palavras]</application>
-                </citation>
-                <daily_practice>
-                    <morning>[1 exercício específico - 10 palavras]</morning>
-                    <afternoon>[1 ponto de verificação - 10 palavras]</afternoon>
-                    <evening>[1 reflexão guiada - 10 palavras]</evening>
-                </daily_practice>
-                <progress>
-                    <metric>[Como medir sucesso - 10 palavras]</metric>
-                    <milestone>[Meta para 30 dias - 10 palavras]</milestone>
-                </progress>
-            </topic_analysis>
-        </mussar_analysis>
-    </output_format>
-    <formatting_rules>
-        - Mantenha cada elemento exatamente no limite especificado
-        - Use linguagem clara e acionável
-        - Foque em práticas mensuráveis
-        - Evite repetir middot entre os tópicos
-        - Garanta que exercícios sejam específicos e realizáveis
-    </formatting_rules>
-</prompt>
-""".format(topics=topics_content, references=references_text)
+            "content": f"""Você é um especialista em Mussar (ética e desenvolvimento moral judaico) com profundo conhecimento dos textos clássicos e modernos. 
+            Sua tarefa é criar uma análise Mussar profunda e significativa baseada nos tópicos fornecidos e nas referências disponíveis.
+
+            TÓPICOS:
+            {topics_content}
+
+            REFERÊNCIAS:
+            {references_text}
+
+            Ao criar a análise Mussar:
+            1. Cite explicitamente as referências fornecidas, incluindo:
+               - Para referências modernas: "Rabi [Nome], em '[Nome da Obra]', ensina que..."
+               - Para textos clássicos do Sefaria: "O [Nome da Obra] (capítulo X) nos ensina que..."
+            2. Conecte as citações com o contexto da parashá
+            3. Foque em lições práticas de desenvolvimento moral
+            4. Use linguagem acessível mas profunda
+
+            Estruture sua resposta assim:
+            1. Introdução geral ao tema Mussar da parashá
+            2. 2-3 pontos principais, cada um com:
+               - Uma citação de uma referência (alternando entre fontes modernas e clássicas)
+               - Explicação da relevância para a parashá
+               - Aplicação prática para nossos dias
+            3. Conclusão com chamado à ação
+
+            Use markdown para formatação."""
         }
