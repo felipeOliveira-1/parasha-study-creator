@@ -351,7 +351,7 @@ Por favor, responda à pergunta incorporando o conhecimento das referências for
             with st.spinner("O Rabino está pensando..."):
                 try:
                     response = client.chat.completions.create(
-                        model=os.getenv("OPENAI_MODEL", "gpt-4"),
+                        model=os.getenv("OPENAI_MODEL", "gpt-4o"),
                         messages=st.session_state.messages,
                         temperature=0.13,
                     )
