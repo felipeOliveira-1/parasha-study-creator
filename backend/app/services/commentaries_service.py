@@ -151,7 +151,7 @@ def translate_commentaries(commentaries: Dict[str, Dict[str, str]], client) -> D
                 continue
                 
             completion = client.chat.completions.create(
-                model=current_app.config.get('OPENAI_MODEL', 'gpt-4'),
+                model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
                 messages=[
                     {
                         "role": "system",

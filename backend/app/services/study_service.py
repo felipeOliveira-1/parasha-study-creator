@@ -4,7 +4,6 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Optional
 from openai import OpenAI
-from .supabase_service import get_supabase_client
 from .parasha_service import get_parasha
 from .prompts import (
     get_parasha_summary_prompt,
@@ -27,80 +26,96 @@ def generate_study(parasha_name: str, study_type: str = 'default', user_id: Opti
     """
     Gera um novo estudo baseado na parashá
     """
-    parasha = get_parasha(parasha_name)
-    if not parasha:
-        raise ValueError(f"Parashá '{parasha_name}' não encontrada")
+    try:
+        parasha = get_parasha(parasha_name)
+        if not parasha:
+            raise ValueError(f"Parashá '{parasha_name}' não encontrada")
+        
+        client = get_openai_client()
+        study_content = generate_study_topics(parasha['text'], client)
+        
+        study = {
+            'parasha': parasha_name,
+            'type': study_type,
+            'content': study_content,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        return study
     
-    client = get_openai_client()
-    study_content = generate_study_topics(parasha['text'], client)
-    
-    study = {
-        'parasha': parasha_name,
-        'type': study_type,
-        'content': study_content,
-        'created_at': datetime.now().isoformat(),
-        'user_id': user_id
-    }
-    
-    # Salvar o estudo no Supabase
-    supabase = get_supabase_client()
-    response = supabase.table('studies').insert(study).execute()
-    return response.data[0]
+    except Exception as e:
+        logger.error(f"Erro ao gerar estudo: {str(e)}")
+        raise
 
 def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Dict] = None, retries: int = 3) -> Dict:
     """
     Gera tópicos de estudo baseados no texto da parashá
     """
     try:
-        # Gera um resumo do texto da parashá
-        completion = client.chat.completions.create(
+        # Gera um resumo da parashá
+        summary_messages = get_parasha_summary_prompt(parasha_text)
+        summary_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=get_parasha_summary_prompt(parasha_text)
+            messages=summary_messages,
+            temperature=0.7,
+            max_tokens=500
         )
-        summary = completion.choices[0].message.content
-        
-        # Extrai temas principais
-        themes_completion = client.chat.completions.create(
+        summary = summary_response.choices[0].message.content
+
+        # Extrai os principais temas
+        themes_messages = get_themes_extraction_prompt(summary)
+        themes_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=get_themes_extraction_prompt(summary)
+            messages=themes_messages,
+            temperature=0.7,
+            max_tokens=300
         )
-        themes = themes_completion.choices[0].message.content
-        
-        # Gera os tópicos de estudo
-        topics_completion = client.chat.completions.create(
+        themes = themes_response.choices[0].message.content
+
+        # Gera tópicos de estudo
+        topics_messages = get_study_topics_prompt(summary, references)
+        topics_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=get_study_topics_prompt(summary, references)
+            messages=topics_messages,
+            temperature=0.7,
+            max_tokens=1000  # Aumentado para acomodar 3 tópicos detalhados
         )
-        topics = topics_completion.choices[0].message.content
-        
-        # Se houver referências, gera análise Mussar adicional
-        mussar_analysis = None
-        if references:
-            mussar_completion = client.chat.completions.create(
-                model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-                messages=get_mussar_prompt(topics, references)
-            )
-            mussar_analysis = mussar_completion.choices[0].message.content
-        
+        topics = topics_response.choices[0].message.content
+
+        # Análise Mussar
+        mussar_messages = get_mussar_prompt(topics, references)
+        mussar_response = client.chat.completions.create(
+            model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
+            messages=mussar_messages,
+            temperature=0.7,
+            max_tokens=800  # Aumentado para análise Mussar detalhada
+        )
+        mussar = mussar_response.choices[0].message.content
+
         return {
-            "summary": summary,
-            "themes": themes,
-            "topics": topics,
-            "mussar_analysis": mussar_analysis,
-            "references": references if references else []
+            'summary': summary,
+            'themes': themes,
+            'topics': topics,
+            'mussar_analysis': mussar,
+            'references': references or [],
+            'generated_at': datetime.now().isoformat()
         }
 
     except Exception as e:
-        logger.error(f"Erro ao gerar estudo: {str(e)}")
         if retries > 0:
-            logger.info(f"Tentando novamente... ({retries} tentativas restantes)")
+            logger.warning(f"Error generating study topics, retrying... ({retries} attempts left)")
             return generate_study_topics(parasha_text, client, references, retries - 1)
-        raise
+        else:
+            logger.error(f"Failed to generate study topics after all retries: {str(e)}")
+            raise
 
 def get_study_history(user_id: str) -> List[Dict]:
     """
     Recupera o histórico de estudos de um usuário
     """
-    supabase = get_supabase_client()
-    response = supabase.table('studies').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
-    return response.data
+    try:
+        # TO DO: implementar lógica para recuperar histórico de estudos
+        return []
+    except Exception as e:
+        logger.error(f"Erro ao recuperar histórico: {str(e)}")
+        raise

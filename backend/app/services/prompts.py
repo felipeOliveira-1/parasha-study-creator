@@ -74,23 +74,41 @@ def get_study_topics_prompt(summary: str, mussar_references: List[Dict] = None) 
 1. Título do Tópico
 2. Contexto narrativo (breve explicação do contexto na parashá)
 3. Versículo relevante com referência
-4. Análise baseada nas referências Mussar (quando disponíveis)
+4. Análise baseada nos ensinamentos da Torá
 5. Aplicação prática dos ensinamentos
 
 Regras:
 - Cada tópico deve ter no máximo 400 palavras no total
-- Use as referências Mussar fornecidas quando relevantes
-- Cite a fonte de cada referência Mussar usada
+- Use linguagem clara e acessível
+- Foque em lições práticas e relevantes
 
 Resumo:
 {summary}{refs_text}"""
         }
     ]
 
-def get_mussar_prompt(topics_content: str, references: List[Dict]) -> List[Dict]:
+def get_mussar_prompt(topics_content: str, references: List[Dict] = None) -> List[Dict]:
     """
     Template para geração de análise Mussar adicional.
     """
+    if not references:
+        return [
+            {
+                "role": "system",
+                "content": "Você é um mestre em Mussar com profundo conhecimento dos textos éticos judaicos."
+            },
+            {
+                "role": "user",
+                "content": f"""Crie uma análise Mussar dos seguintes tópicos:
+1. Identifique as principais virtudes e desafios morais
+2. Extraia lições práticas para o desenvolvimento pessoal
+3. Sugira exercícios ou reflexões para trabalhar essas virtudes
+
+Tópicos:
+{topics_content}"""
+            }
+        ]
+
     refs_text = "\n".join([
         f"- {ref['source']}: {ref['citation']}"
         for ref in references
