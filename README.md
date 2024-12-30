@@ -1,54 +1,80 @@
 # Parasha Study Creator
 
-Uma ferramenta avançada para geração de estudos da Torá, combinando tecnologia moderna com sabedoria tradicional judaica. O sistema integra processamento de linguagem natural, busca semântica e IA para criar estudos profundos e significativos das parashiot (porções semanais da Torá).
+Uma ferramenta avançada para geração de estudos da Torá, combinando tecnologia moderna com sabedoria tradicional judaica. O sistema utiliza a API do OpenAI e Sefaria para criar estudos profundos e significativos das parashiot (porções semanais da Torá), incluindo análises de Mussar (ética judaica).
+
+## Funcionalidades Principais
+
+- **Geração de Estudos Completos**:
+  - Resumo da parashá
+  - Temas principais
+  - Tópicos de estudo aprofundados
+  - Análise Mussar personalizada
+  - Referências de obras clássicas de Mussar
+
+- **Integração com Sefaria**:
+  - Busca automática de textos relevantes
+  - Referências precisas de obras clássicas
+  - Textos originais em hebraico com tradução
+
+- **Interface Moderna e Responsiva**:
+  - Design limpo e intuitivo
+  - Suporte a dispositivos móveis
+  - Visualização otimizada de textos em hebraico
 
 ## Estrutura do Projeto
-
-O projeto está organizado em duas partes principais:
 
 ### Backend (Flask)
 
 O backend é construído com Flask e oferece uma API RESTful para:
 - Gerenciamento de parashiot
-- Geração de estudos
-- Autenticação de usuários
-- Busca semântica em textos judaicos
+- Geração de estudos com OpenAI
+- Integração com a API do Sefaria
+- Tradução automática de textos
 
 #### Estrutura de Diretórios
 ```
 backend/
 ├── app/
 │   ├── routes/          # Rotas da API
+│   │   ├── parashot.py  # Endpoints de parashiot
+│   │   └── studies.py   # Endpoints de estudos
 │   ├── services/        # Lógica de negócio
+│   │   ├── parasha_service.py    # Serviço de parashiot
+│   │   ├── study_service.py      # Serviço de estudos
+│   │   └── prompts.py            # Templates de prompts
 │   └── __init__.py      # Configuração do Flask
-├── venv/               # Ambiente virtual Python
-├── config.py          # Configurações
-├── requirements.txt   # Dependências
-├── schema.sql        # Esquema do banco
-└── wsgi.py           # Ponto de entrada
+├── requirements.txt    # Dependências Python
+└── wsgi.py            # Ponto de entrada
 ```
 
-### Frontend (React + TypeScript)
+### Frontend (React + TypeScript + Vite)
 
-Interface moderna e responsiva construída com React e TypeScript, oferecendo:
-- Interface intuitiva para estudos
-- Chat com "Rabino Virtual"
-- Visualização de parashiot e comentários
-- Gerenciamento de estudos salvos
+Interface moderna construída com React, TypeScript e Vite, oferecendo:
+- Seleção intuitiva de parashiot
+- Visualização clara dos estudos gerados
+- Exibição de textos em hebraico e português
+- Design responsivo com Tailwind CSS
 
 #### Estrutura de Diretórios
 ```
 frontend/
 ├── src/
+│   ├── App.tsx         # Componente principal
 │   ├── components/     # Componentes React
-│   ├── pages/         # Páginas da aplicação
-│   ├── services/      # Chamadas à API
-│   └── types/         # Tipos TypeScript
-├── public/           # Arquivos estáticos
-└── package.json     # Dependências
+│   ├── assets/        # Recursos estáticos
+│   └── styles/        # Estilos CSS
+├── public/           # Arquivos públicos
+└── package.json     # Dependências Node.js
 ```
 
 ## Configuração e Execução
+
+### Pré-requisitos
+
+- Python 3.8+
+- Node.js 16+
+- NPM ou Yarn
+- Chave de API do OpenAI
 
 ### Backend
 
@@ -69,13 +95,12 @@ pip install -r requirements.txt
 ```env
 OPENAI_API_KEY=sua_chave_aqui
 OPENAI_MODEL=gpt-4o
-SUPABASE_URL=sua_url_aqui
-SUPABASE_SERVICE_KEY=sua_chave_aqui
+FLASK_ENV=development
 ```
 
 4. Execute o servidor:
 ```bash
-python wsgi.py
+python -m flask --app backend/wsgi.py run --debug
 ```
 
 ### Frontend
@@ -86,50 +111,36 @@ cd frontend
 npm install
 ```
 
-2. Configure as variáveis de ambiente (.env.local):
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-3. Execute em modo desenvolvimento:
+2. Execute em modo desenvolvimento:
 ```bash
 npm run dev
 ```
 
-4. Para build de produção:
-```bash
-npm run build
-```
+O frontend estará disponível em `http://localhost:5173` e se comunicará com o backend em `http://localhost:5000`.
 
-## Funcionalidades
-
-### API Backend
-- `/api/parashot`: Gerenciamento de parashiot
-- `/api/studies`: Geração e consulta de estudos
-- `/api/auth`: Autenticação e autorização
-- `/api/search`: Busca semântica em textos
-
-### Interface Frontend
-- Visualização de parashiot
-- Geração de estudos personalizados
-- Chat interativo com IA
-- Busca em textos judaicos
-- Gerenciamento de estudos salvos
-
-## Tecnologias Principais
+## Tecnologias Utilizadas
 
 ### Backend
-- Flask (Framework Web)
-- OpenAI API (GPT-4o)
-- Supabase (Banco de dados e Autenticação)
-- LangChain (Processamento de LLM)
+- Flask (Framework web)
+- OpenAI API (Geração de texto)
+- Sefaria API (Textos judaicos)
+- Python-dotenv (Configuração)
 
 ### Frontend
 - React 18
 - TypeScript
 - Vite
-- TailwindCSS
+- Tailwind CSS
+- Axios
+
+## Contribuindo
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Crie um Pull Request
 
 ## Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
