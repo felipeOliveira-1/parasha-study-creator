@@ -188,7 +188,7 @@ function App() {
             {study && (
               <div className="bg-white rounded-lg shadow-md p-8">
                 <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Estudo Gerado</h2>
-                
+
                 <div className="space-y-8">
                   {/* Summary Section */}
                   <section>
