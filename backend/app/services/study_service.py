@@ -57,8 +57,8 @@ def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Di
         summary_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
             messages=summary_messages,
-            temperature=0.7,
-            max_tokens=500
+            temperature=0.13,
+            max_tokens=5000
         )
         summary = summary_response.choices[0].message.content
 
@@ -67,8 +67,8 @@ def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Di
         themes_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
             messages=themes_messages,
-            temperature=0.7,
-            max_tokens=300
+            temperature=0.13,
+            max_tokens=5000
         )
         themes = themes_response.choices[0].message.content
 
@@ -77,8 +77,8 @@ def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Di
         topics_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
             messages=topics_messages,
-            temperature=0.7,
-            max_tokens=1000  # Aumentado para acomodar 3 tópicos detalhados
+            temperature=0.13,
+            max_tokens=5000  # Aumentado para acomodar 3 tópicos detalhados
         )
         topics = topics_response.choices[0].message.content
 
@@ -87,8 +87,8 @@ def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Di
         mussar_response = client.chat.completions.create(
             model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
             messages=mussar_messages,
-            temperature=0.7,
-            max_tokens=800  # Aumentado para análise Mussar detalhada
+            temperature=0.13,
+            max_tokens=5000  # Aumentado para análise Mussar detalhada
         )
         mussar = mussar_response.choices[0].message.content
 
