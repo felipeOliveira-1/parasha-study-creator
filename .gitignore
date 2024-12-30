@@ -2,12 +2,18 @@
 env/
 venv/
 ENV/
+backend/venv/
+frontend/node_modules/
 
 # Arquivos Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
 
 # Arquivos de distribuição/packaging
 dist/
@@ -16,18 +22,44 @@ build/
 
 # Arquivos de ambiente e configuração
 .env
+.env.local
+.env.*.local
 *.log
+*.cfg
 
-# Arquivos de cache
+# Arquivos de cache e dados temporários
 parasha_cache.json
 pdf_version.json
+processed_files.json
+*.sqlite
+*.db
 
-# IDEs
+# IDEs e editores
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-workspace
+*.sublime-project
 
 # Sistema operacional
 .DS_Store
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Arquivos de build e desenvolvimento
+frontend/dist/
+frontend/build/
+frontend/.cache/
+frontend/coverage/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Arquivos específicos do projeto
+livros/
+estudos/
+conversas/
+*.pdf
+*.epub
