@@ -1,4 +1,5 @@
-# Parasha Study Creator
+# Parasha Study Creator  
+*Última atualização: 01/01/2025*
 
 Uma ferramenta avançada para geração de estudos da Torá, combinando tecnologia moderna com sabedoria tradicional judaica. O sistema utiliza a API do OpenAI e Sefaria para criar estudos profundos e significativos das parashiot (porções semanais da Torá), incluindo análises de Mussar (ética judaica).
 
