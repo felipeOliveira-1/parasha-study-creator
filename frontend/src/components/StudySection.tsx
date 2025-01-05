@@ -5,7 +5,20 @@ interface StudySectionProps {
   study: Study;
 }
 
-export const StudySection = ({ study }: StudySectionProps) => {
+export const StudySection = React.memo(({ study }: StudySectionProps) => {
+  // Verificação de segurança
+  if (!study || typeof study !== 'object') {
+    return <div>Dados de estudo inválidos</div>;
+  }
+
+  // Função para processar o conteúdo
+  const processContent = (content: string | undefined) => {
+    if (!content) return '';
+    return content
+      .replace(/\*\*/g, '')
+      .replace(/###/g, '')
+      .trim();
+  };
   return (
     <div className="bg-white rounded-lg shadow-md p-8">
       <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">
@@ -19,7 +32,7 @@ export const StudySection = ({ study }: StudySectionProps) => {
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="prose prose-lg max-w-none">
               <div className="text-gray-900 leading-relaxed text-justify">
-                {study.summary}
+                {processContent(study.summary)}
               </div>
             </div>
           </div>
@@ -31,7 +44,7 @@ export const StudySection = ({ study }: StudySectionProps) => {
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="prose prose-lg max-w-none">
               <div className="text-gray-900 leading-relaxed text-justify">
-                {study.themes}
+                {processContent(study.themes)}
               </div>
             </div>
           </div>
@@ -42,10 +55,7 @@ export const StudySection = ({ study }: StudySectionProps) => {
           <h3 className="text-2xl font-semibold mb-4 text-gray-800">Tópicos de Estudo</h3>
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="text-gray-900 leading-relaxed text-justify whitespace-pre-wrap">
-              {study.topics
-                .replace(/\*\*/g, '')  // Remove marcadores de negrito
-                .replace(/###/g, '')   // Remove marcadores de título
-              }
+              {processContent(study.topics)}
             </div>
           </div>
         </section>
@@ -56,10 +66,7 @@ export const StudySection = ({ study }: StudySectionProps) => {
             <h3 className="text-2xl font-semibold mb-4 text-gray-800">Análise Mussar</h3>
             <div className="bg-gray-50 rounded-lg p-6">
               <div className="text-gray-900 leading-relaxed text-justify whitespace-pre-wrap">
-                {study.mussar_analysis
-                  .replace(/\*\*/g, '')  // Remove marcadores de negrito
-                  .replace(/###/g, '')   // Remove marcadores de título
-                }
+                {processContent(study.mussar_analysis)}
               </div>
             </div>
           </section>
@@ -67,4 +74,6 @@ export const StudySection = ({ study }: StudySectionProps) => {
       </div>
     </div>
   );
-};
+});
+
+StudySection.displayName = 'StudySection';

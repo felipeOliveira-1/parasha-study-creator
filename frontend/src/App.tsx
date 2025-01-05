@@ -5,7 +5,8 @@ import { Footer } from './components/Footer';
 import { Study } from './types';
 import './App.css';
 
-const StudySection = lazy(() => import('./components/StudySection'));
+const StudySection = lazy(() => import('./components/StudySection')
+  .then(module => ({ default: module.StudySection })));
 
 function App() {
   const { parashot, error: parashotError } = useParashot();
@@ -152,7 +153,11 @@ function App() {
           {/* Study Content */}
           <div className="lg:col-span-8">
             {study && (
-              <Suspense fallback={<div>Carregando estudo...</div>}>
+              <Suspense fallback={
+                <div className="flex justify-center items-center min-h-[400px]">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+              }>
                 <StudySection study={study} />
               </Suspense>
             )}
