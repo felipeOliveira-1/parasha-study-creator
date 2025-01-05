@@ -4,6 +4,7 @@ Implementa templates para diferentes tipos de análise e geração de conteúdo.
 """
 
 from typing import List, Dict
+from functools import lru_cache
 
 @lru_cache(maxsize=100)
 def get_parasha_summary_prompt(parasha_text: str) -> List[Dict]:
