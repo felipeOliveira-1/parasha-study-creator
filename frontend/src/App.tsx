@@ -1,45 +1,18 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { useState, lazy, Suspense } from 'react';
+import { useParashot } from './hooks/useParashot';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { Study } from './types';
+import './App.css';
 
-interface Parasha {
-  name: string;
-  book: string;
-  reference: string;
-}
-
-interface Study {
-  summary: string;
-  themes: string;
-  topics: string;
-  mussar_analysis?: string;
-  references: any[];
-  generated_at: string;
-}
+const StudySection = lazy(() => import('./components/StudySection'));
 
 function App() {
-  const [parashot, setParashot] = useState<Parasha[]>([])
-  const [selectedParasha, setSelectedParasha] = useState('')
-  const [study, setStudy] = useState<Study | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>('')
-
-  useEffect(() => {
-    fetchParashot()
-  }, [])
-
-  const fetchParashot = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/parashot')
-      const data = await response.json()
-      if (data.success) {
-        setParashot(data.data)
-      } else {
-        setError('Failed to load parashot list')
-      }
-    } catch (err) {
-      setError('Server connection error')
-    }
-  }
+  const { parashot, error: parashotError } = useParashot();
+  const [selectedParasha, setSelectedParasha] = useState('');
+  const [study, setStudy] = useState<Study | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(parashotError);
 
   // Agrupa as parashiot por livro
   const parashotByBook = parashot.reduce((acc: { [key: string]: Parasha[] }, parasha) => {
@@ -105,15 +78,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
-        <div className="container mx-auto px-6 py-8 max-w-7xl">
-          <h1 className="text-4xl font-bold text-center">Parasha Study Creator</h1>
-          <p className="mt-3 text-xl text-center text-blue-100">Gere estudos profundos da Torá com IA</p>
-        </div>
-      </header>
+      <Header />
 
-      {/* Main Content */}
       <main className="container mx-auto px-6 py-12 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Selection Section */}
@@ -186,74 +152,15 @@ function App() {
           {/* Study Content */}
           <div className="lg:col-span-8">
             {study && (
-              <div className="bg-white rounded-lg shadow-md p-8">
-                <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Estudo Gerado</h2>
-
-                <div className="space-y-8">
-                  {/* Summary Section */}
-                  <section>
-                    <h3 className="text-2xl font-semibold mb-4 text-gray-800">Resumo</h3>
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <div className="prose prose-lg max-w-none">
-                        <div className="text-gray-900 leading-relaxed text-justify">
-                          {study.summary}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Themes Section */}
-                  <section>
-                    <h3 className="text-2xl font-semibold mb-4 text-gray-800">Temas Principais</h3>
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <div className="prose prose-lg max-w-none">
-                        <div className="text-gray-900 leading-relaxed text-justify">
-                          {study.themes}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Topics Section */}
-                  <section>
-                    <h3 className="text-2xl font-semibold mb-4 text-gray-800">Tópicos de Estudo</h3>
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <div className="text-gray-900 leading-relaxed text-justify whitespace-pre-wrap">
-                        {study.topics
-                          .replace(/\*\*/g, '')  // Remove marcadores de negrito
-                          .replace(/###/g, '')   // Remove marcadores de título
-                        }
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Mussar Analysis Section */}
-                  {study.mussar_analysis && (
-                    <section>
-                      <h3 className="text-2xl font-semibold mb-4 text-gray-800">Análise Mussar</h3>
-                      <div className="bg-gray-50 rounded-lg p-6">
-                        <div className="text-gray-900 leading-relaxed text-justify whitespace-pre-wrap">
-                          {study.mussar_analysis
-                            .replace(/\*\*/g, '')  // Remove marcadores de negrito
-                            .replace(/###/g, '')   // Remove marcadores de título
-                          }
-                        </div>
-                      </div>
-                    </section>
-                  )}
-                </div>
-              </div>
+              <Suspense fallback={<div>Carregando estudo...</div>}>
+                <StudySection study={study} />
+              </Suspense>
             )}
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-12 py-6 bg-gray-800 text-gray-300">
-        <div className="container mx-auto px-6 text-center max-w-7xl">
-          <p>&copy; {new Date().getFullYear()} Parasha Study Creator</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
