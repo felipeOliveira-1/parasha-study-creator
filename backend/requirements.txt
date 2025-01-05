@@ -2,10 +2,6 @@
 flask==3.0.0
 flask-cors==4.0.0
 
-# Banco de Dados e Autenticação
-supabase==2.0.3
-python-jose==3.3.0
-python-multipart==0.0.6
 
 # Processamento de Documentos
 pypdf>=3.17.1

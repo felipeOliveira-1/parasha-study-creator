@@ -1,1 +1,1 @@
-from . import parasha, studies, auth
+from . import parasha, studies

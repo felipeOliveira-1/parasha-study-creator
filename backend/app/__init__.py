@@ -39,5 +39,9 @@ def create_app(test_config=None):
     from .routes import parasha, studies
     app.register_blueprint(parasha.bp)
     app.register_blueprint(studies.bp)
+    
+    # Remove autenticação
+    app.config.pop('SUPABASE_URL', None)
+    app.config.pop('SUPABASE_KEY', None)
 
     return app
