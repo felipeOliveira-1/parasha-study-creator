@@ -1,6 +1,7 @@
 import logging
 import requests
 from typing import Dict, Optional, List
+from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,7 @@ def get_parasha(name: str) -> Optional[Dict]:
         logger.error(f"Error retrieving parasha {name}: {str(e)}")
         return None
 
+@lru_cache(maxsize=100)
 def get_parasha_from_sefaria(parasha_name: str) -> Optional[str]:
     """
     Obtém o texto da parashá da API do Sefaria.
@@ -104,15 +106,14 @@ def get_parasha_from_sefaria(parasha_name: str) -> Optional[str]:
         response.raise_for_status()
         
         data = response.json()
-        text = ""
         
-        # Processa o texto retornado
-        for chapter in data.get('text', []):
-            if isinstance(chapter, list):
-                text += " ".join(verse for verse in chapter if verse) + "\n\n"
-            elif isinstance(chapter, str):
-                text += chapter + "\n\n"
-                
+        # Processamento mais eficiente do texto
+        text = "\n\n".join(
+            " ".join(verse for verse in chapter if verse) if isinstance(chapter, list)
+            else chapter
+            for chapter in data.get('text', [])
+        )
+        
         return text.strip()
         
     except Exception as e:

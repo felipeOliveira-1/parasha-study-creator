@@ -5,6 +5,7 @@ Serviço para gerenciar comentários rabínicos clássicos do Sefaria.
 import requests
 import logging
 import time
+import re
 from typing import List, Dict, Optional, Union
 from functools import lru_cache
 from flask import current_app
@@ -57,16 +58,9 @@ def _validate_ref(ref: str) -> bool:
     if not ref or not isinstance(ref, str):
         return False
         
-    # Verifica se contém um comentarista válido
-    has_valid_commentator = any(c in ref for c in CLASSIC_COMMENTATORS)
-    
-    # Verifica formato básico
-    has_on = " on " in ref
-    
-    # Verifica formato de versículo (pode incluir ranges como 1-3)
-    has_verse = any(char.isdigit() for char in ref)
-    
-    return has_valid_commentator and has_on and has_verse
+    # Usar regex para validação mais robusta
+    pattern = r"^[A-Za-z\s]+ on [A-Za-z]+\s\d+:\d+(-\d+)?$"
+    return bool(re.match(pattern, ref)) and any(c in ref for c in CLASSIC_COMMENTATORS)
 
 def _process_text_content(data: Dict) -> tuple[str, str]:
     """

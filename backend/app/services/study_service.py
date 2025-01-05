@@ -4,6 +4,7 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Optional
 from openai import OpenAI
+from tenacity import retry, stop_after_attempt, wait_exponential
 from .parasha_service import get_parasha
 from .prompts import (
     get_parasha_summary_prompt,
@@ -47,50 +48,26 @@ def generate_study(parasha_name: str, study_type: str = 'default', user_id: Opti
         logger.error(f"Erro ao gerar estudo: {str(e)}")
         raise
 
-def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Dict] = None, retries: int = 3) -> Dict:
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+def _call_openai(messages: List[Dict], client: OpenAI) -> str:
+    response = client.chat.completions.create(
+        model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
+        messages=messages,
+        temperature=0.13,
+        max_tokens=5000,
+        timeout=30  # Adicionar timeout
+    )
+    return response.choices[0].message.content
+
+def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Dict] = None) -> Dict:
     """
     Gera tópicos de estudo baseados no texto da parashá
     """
     try:
-        # Gera um resumo da parashá
-        summary_messages = get_parasha_summary_prompt(parasha_text)
-        summary_response = client.chat.completions.create(
-            model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=summary_messages,
-            temperature=0.13,
-            max_tokens=5000
-        )
-        summary = summary_response.choices[0].message.content
-
-        # Extrai os principais temas
-        themes_messages = get_themes_extraction_prompt(summary)
-        themes_response = client.chat.completions.create(
-            model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=themes_messages,
-            temperature=0.13,
-            max_tokens=5000
-        )
-        themes = themes_response.choices[0].message.content
-
-        # Gera tópicos de estudo
-        topics_messages = get_study_topics_prompt(summary, references)
-        topics_response = client.chat.completions.create(
-            model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=topics_messages,
-            temperature=0.13,
-            max_tokens=5000  # Aumentado para acomodar 3 tópicos detalhados
-        )
-        topics = topics_response.choices[0].message.content
-
-        # Análise Mussar
-        mussar_messages = get_mussar_prompt(topics, references)
-        mussar_response = client.chat.completions.create(
-            model=current_app.config.get('OPENAI_MODEL', 'gpt-4o'),
-            messages=mussar_messages,
-            temperature=0.13,
-            max_tokens=5000  # Aumentado para análise Mussar detalhada
-        )
-        mussar = mussar_response.choices[0].message.content
+        summary = _call_openai(get_parasha_summary_prompt(parasha_text), client)
+        themes = _call_openai(get_themes_extraction_prompt(summary), client)
+        topics = _call_openai(get_study_topics_prompt(summary, references), client)
+        mussar = _call_openai(get_mussar_prompt(topics, references), client)
 
         return {
             'summary': summary,
@@ -102,12 +79,8 @@ def generate_study_topics(parasha_text: str, client: OpenAI, references: List[Di
         }
 
     except Exception as e:
-        if retries > 0:
-            logger.warning(f"Error generating study topics, retrying... ({retries} attempts left)")
-            return generate_study_topics(parasha_text, client, references, retries - 1)
-        else:
-            logger.error(f"Failed to generate study topics after all retries: {str(e)}")
-            raise
+        logger.error(f"Failed to generate study topics: {str(e)}")
+        raise
 
 def get_study_history(user_id: str) -> List[Dict]:
     """
