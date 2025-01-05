@@ -1,100 +1,42 @@
 import logging
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, request
 from ..services.study_service import generate_study, get_study_history
+from .utils import json_response, handle_errors, log_request, StudyRequest
 
 logger = logging.getLogger(__name__)
 bp = Blueprint('studies', __name__, url_prefix='/api/studies')
 
 @bp.route('/generate', methods=['POST'])
+@handle_errors
 def create_study():
     """
     Gera um novo estudo baseado na parashá selecionada
     """
-    try:
-        logger.info("Received study generation request")
-        data = request.get_json()
-        logger.info(f"Request data: {data}")
+    log_request("study_generation_start")
+    data = StudyRequest(**request.get_json())
+    log_request("study_generation_data", **data.dict())
+    
+    study = generate_study(data.parasha, data.study_type, data.user_id)
+    if not study:
+        log_request("study_generation_failed", parasha=data.parasha)
+        return json_response(False, error='Failed to generate study. Please try again.', status_code=500)
         
-        if not data:
-            logger.error("No JSON data provided in request")
-            return jsonify({
-                'success': False,
-                'error': 'Request data is required'
-            }), 400
-            
-        parasha = data.get('parasha')
-        logger.info(f"Parasha requested: {parasha}")
-        
-        if not parasha:
-            logger.error("No parasha provided in request")
-            return jsonify({
-                'success': False,
-                'error': 'Parasha name is required'
-            }), 400
-            
-        study_type = data.get('study_type', 'default')
-        logger.info(f"Study type requested: {study_type}")
-        
-        user_id = data.get('user_id')  # Optional for now
-        logger.info(f"User ID provided: {user_id}")
-        
-        # Generate study
-        study = generate_study(parasha, study_type, user_id)
-        if not study:
-            logger.error(f"Failed to generate study for parasha: {parasha}")
-            return jsonify({
-                'success': False,
-                'error': 'Failed to generate study. Please try again.'
-            }), 500
-            
-        logger.info("Study generated successfully")
-        return jsonify({
-            'success': True,
-            'data': study
-        })
-        
-    except ValueError as e:
-        logger.error(f"Validation error: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 400
-        
-    except Exception as e:
-        logger.error(f"Error generating study: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': 'Internal server error'
-        }), 500
+    log_request("study_generation_success", parasha=data.parasha)
+    return json_response(True, data=study)
 
 @bp.route('/history', methods=['GET'])
+@handle_errors
 def get_history():
     """
     Recupera o histórico de estudos de um usuário
     """
-    try:
-        logger.info("Received study history request")
-        user_id = request.args.get('user_id')
-        logger.info(f"User ID provided: {user_id}")
+    log_request("study_history_request")
+    user_id = request.args.get('user_id')
+    
+    if not user_id:
+        log_request("study_history_missing_user_id")
+        return json_response(False, error='ID do usuário não fornecido', status_code=400)
         
-        if not user_id:
-            logger.error("No user ID provided in request")
-            return jsonify({
-                'success': False,
-                'error': 'ID do usuário não fornecido'
-            }), 400
-            
-        history = get_study_history(user_id)
-        logger.info("Study history retrieved successfully")
-        
-        return jsonify({
-            'success': True,
-            'data': history
-        })
-        
-    except Exception as e:
-        logger.error(f"Error retrieving study history: {str(e)}")
-        return jsonify({
-            'success': False,
-            'error': 'Erro interno ao recuperar histórico'
-        }), 500
+    history = get_study_history(user_id)
+    log_request("study_history_success", user_id=user_id)
+    return json_response(True, data=history)
