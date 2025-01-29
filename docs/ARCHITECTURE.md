@@ -104,6 +104,21 @@ Manages environment-specific settings:
 - **Secret Keys**: Secures application secrets.
 - **Folder Paths**: Defines paths for uploads and study storage.
 
+## Documentation Structure
+
+### README.md
+
+Provides an overview of the project, setup instructions, and contribution guidelines.
+
+### ARCHITECTURE.md
+
+Details the architectural overview, main components, service layers, utility functions, and recommendations for improvements.
+
+### Additional Documentation
+
+- **Guide for Using the Sefaria API with LLMs.md**: Instructions on integrating and utilizing the Sefaria API.
+- **Prompt Engineering em quatro níveis de complexidade.md**: Guidelines on crafting effective prompts for OpenAI's API.
+
 ## Recommendations
 
 1. **API Documentation**:
