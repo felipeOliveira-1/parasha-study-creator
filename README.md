@@ -71,7 +71,7 @@ frontend/
 
 ### Pré-requisitos
 
-- Python 3.8+
+- Python 3.10+
 - Node.js 16+
 - NPM ou Yarn
 - Chave de API do OpenAI
