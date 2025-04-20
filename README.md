@@ -1,146 +1,95 @@
 # Parasha Study Creator
 
-Uma ferramenta avançada para geração de estudos da Torá, combinando tecnologia moderna com sabedoria tradicional judaica. O sistema utiliza a API do OpenAI e Sefaria para criar estudos profundos e significativos das parashiot (porções semanais da Torá), incluindo análises de Mussar (ética judaica).
+Ferramenta automatizada para geração de estudos aprofundados de parashot (porções semanais da Torá), integrando inteligência artificial, tradição judaica e customização total do formato do estudo.
 
-## Funcionalidades Principais
+---
 
-- **Geração de Estudos Completos**:
-  - Resumo da parashá
-  - Temas principais
-  - Tópicos de estudo aprofundados
-  - Análise Mussar personalizada
-  - Referências de obras clássicas de Mussar
+## ✨ Principais Funcionalidades
 
-- **Integração com Sefaria**:
-  - Busca automática de textos relevantes
-  - Referências precisas de obras clássicas
-  - Textos originais em hebraico com tradução
+- **Geração automática de estudos completos** a partir do nome da porção
+- **Prompt avançado** com contexto de Halachá, Cabalá, Mussar, Chassidut e referências autênticas
+- **Personalização total do formato**: basta editar o arquivo `studies/EXEMPLO_FORMATO.md` para mudar o modelo de saída
+- **Salva os estudos em Markdown** no diretório `studies/`
+- **Fluxo 100% automatizado**: o usuário só digita o nome da porção e recebe o estudo pronto
+- **Utiliza OpenAI GPT-4.1 e Sefaria API** para geração e enriquecimento do conteúdo
 
-- **Interface Moderna e Responsiva**:
-  - Design limpo e intuitivo
-  - Suporte a dispositivos móveis
-  - Visualização otimizada de textos em hebraico
+---
 
-## Estrutura do Projeto
+## 🚀 Como Usar
 
-### Backend (Flask)
-
-O backend é construído com Flask e oferece uma API RESTful para:
-- Gerenciamento de parashiot
-- Geração de estudos com OpenAI
-- Integração com a API do Sefaria
-- Tradução automática de textos
-
-#### Estrutura de Diretórios
-```
-backend/
-├── app/
-│   ├── routes/          # Rotas da API
-│   │   ├── parashot.py  # Endpoints de parashiot
-│   │   └── studies.py   # Endpoints de estudos
-│   ├── services/        # Lógica de negócio
-│   │   ├── parasha_service.py    # Serviço de parashiot
-│   │   ├── study_service.py      # Serviço de estudos
-│   │   └── prompts.py            # Templates de prompts
-│   └── __init__.py      # Configuração do Flask
-├── requirements.txt    # Dependências Python
-└── wsgi.py            # Ponto de entrada
-```
-
-### Frontend (React + TypeScript + Vite)
-
-Interface moderna construída com React, TypeScript e Vite, oferecendo:
-- Seleção intuitiva de parashiot
-- Visualização clara dos estudos gerados
-- Exibição de textos em hebraico e português
-- Design responsivo com Tailwind CSS
-
-#### Estrutura de Diretórios
-```
-frontend/
-├── src/
-│   ├── App.tsx         # Componente principal
-│   ├── components/     # Componentes React
-│   ├── assets/        # Recursos estáticos
-│   └── styles/        # Estilos CSS
-├── public/           # Arquivos públicos
-└── package.json     # Dependências Node.js
-```
-
-## Configuração e Execução
-
-### Pré-requisitos
-
+### 1. Pré-requisitos
 - Python 3.10+
-- Node.js 16+
-- NPM ou Yarn
-- Chave de API do OpenAI
+- Chave de API do OpenAI (`OPENAI_API_KEY`)
 
-### Backend
-
-1. Crie e ative o ambiente virtual:
-```bash
-cd backend
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-source venv/bin/activate # Linux/Mac
-```
-
-2. Instale as dependências:
+### 2. Instalação
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configure as variáveis de ambiente (.env):
-```env
-OPENAI_API_KEY=sua_chave_aqui
-OPENAI_MODEL=gpt-4o
-FLASK_ENV=development
-```
+### 3. Configuração
+- Copie `.env.example` para `.env` e coloque sua chave OpenAI:
+  ```env
+  OPENAI_API_KEY=sua_chave_aqui
+  ```
 
-4. Execute o servidor:
+### 4. Personalize o formato do estudo (opcional)
+- Edite o arquivo `studies/EXEMPLO_FORMATO.md` para definir o modelo, tópicos, citações e sugestões práticas que deseja em todos os estudos gerados.
+
+### 5. Gerando um estudo
 ```bash
-python -m flask --app backend/wsgi.py run --debug
+python criar_estudo.py
+```
+Digite o nome da porção (ex: Shemini) quando solicitado. O estudo será salvo automaticamente em `studies/NOME_DA_PORCAO.md`.
+
+---
+
+## 🗂️ Estrutura do Projeto
+```
+parasha-study-creator/
+├── criar_estudo.py           # Script principal para gerar estudos
+├── mcp_server.py             # Servidor MCP (Model Context Protocol)
+├── requirements.txt          # Dependências Python
+├── .env                      # Variáveis sensíveis (OpenAI API Key)
+├── studies/
+│   ├── EXEMPLO_FORMATO.md    # Modelo de formatação do estudo
+│   └── <Parasha>.md          # Estudos gerados
+└── README.md
 ```
 
-### Frontend
+---
 
-1. Instale as dependências:
-```bash
-cd frontend
-npm install
-```
+## 🧠 Como funciona?
+- O usuário executa `criar_estudo.py` e informa o nome da porção.
+- O script garante que o servidor MCP está rodando e faz a requisição.
+- O servidor lê o arquivo de exemplo (`EXEMPLO_FORMATO.md`) e instrui a IA a seguir exatamente aquele modelo, trazendo sempre referências, estrutura e sugestões práticas.
+- O estudo é salvo automaticamente em Markdown.
 
-2. Execute em modo desenvolvimento:
-```bash
-npm run dev
-```
+---
 
-O frontend estará disponível em `http://localhost:5173` e se comunicará com o backend em `http://localhost:5000`.
+## 🛠️ Personalização Avançada
+- **Quer mudar o formato dos estudos?** Basta editar `studies/EXEMPLO_FORMATO.md`.
+- **Quer mudar o prompt/contexto?** Edite o bloco de prompt em `mcp_server.py`.
+- **Quer gerar estudos para todas as parashiot de uma vez?** Peça por um script de automação!
 
-## Tecnologias Utilizadas
+---
 
-### Backend
-- Flask (Framework web)
-- OpenAI API (Geração de texto)
-- Sefaria API (Textos judaicos)
-- Python-dotenv (Configuração)
+## 📚 Tecnologias Utilizadas
+- Python 3.10+
+- OpenAI API (GPT-4)
+- Sefaria API (textos judaicos)
+- python-dotenv
+- requests
 
-### Frontend
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Axios
+---
 
-## Contribuindo
-
+## 🤝 Contribuição
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
-5. Crie um Pull Request
 
-## Licença
+---
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+## 📄 Licença
+MIT
+

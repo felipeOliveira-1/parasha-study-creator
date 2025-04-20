@@ -1,11 +1,12 @@
-# Ambiente virtual
+# Ambientes virtuais
 env/
 venv/
 ENV/
-backend/venv/
-frontend/node_modules/
 
-# Arquivos Python
+# Node.js (caso use futuramente)
+node_modules/
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,14 +21,17 @@ dist/
 build/
 *.egg-info/
 
-# Arquivos de ambiente e configuração
+# Configuração e variáveis sensíveis
 .env
-.env.local
-.env.*.local
+.env.*
 *.log
 *.cfg
 
-# Arquivos de cache e dados temporários
+# Estudos gerados (exceto modelo de exemplo)
+studies/*.md
+!studies/EXEMPLO_FORMATO.md
+
+# Cache e dados temporários
 parasha_cache.json
 pdf_version.json
 processed_files.json
@@ -39,28 +43,3 @@ processed_files.json
 .idea/
 *.swp
 *.swo
-*.sublime-workspace
-*.sublime-project
-
-# Sistema operacional
-.DS_Store
-Thumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Arquivos de build e desenvolvimento
-frontend/dist/
-frontend/build/
-frontend/.cache/
-frontend/coverage/
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-
-# Arquivos específicos do projeto
-livros/
-estudos/
-conversas/
-*.pdf
-*.epub
-.aider*

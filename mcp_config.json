@@ -1,0 +1,12 @@
+{
+  "port": 8000,
+  "tools": ["search_sefaria", "generate_parasha_study_ptbr"],
+  "mcpServers": {
+    "sefaria": {
+      "command": "python",
+      "args": [
+        "c:/Documentos/Projetos/parasha-study-creator/mcp_server_sefaria.py"
+      ]
+    }
+  }
+}
