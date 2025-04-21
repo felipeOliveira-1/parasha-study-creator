@@ -16,7 +16,9 @@ load_dotenv()
 load_dotenv(dotenv_path='.env', override=True)
 load_dotenv(dotenv_path='.env.example', override=False)
 
-STUDIES_DIR = "studies"
+# Garante que a pasta studies sempre será a da raiz do projeto
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STUDIES_DIR = os.path.join(BASE_DIR, "studies")
 os.makedirs(STUDIES_DIR, exist_ok=True)
 
 import unicodedata
@@ -414,7 +416,13 @@ class MCPHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(result, ensure_ascii=False).encode('utf-8'))
 
-def run(config_file="mcp_config.json"):
+import os
+
+def run(config_file=None):
+    # Caminho robusto: sempre busca ../config/mcp_config.json relativo ao diretório do script
+    if config_file is None:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        config_file = os.path.join(base_dir, '..', 'config', 'mcp_config.json')
     with open(config_file) as f:
         config = json.load(f)
     port = config.get("port", 8000)

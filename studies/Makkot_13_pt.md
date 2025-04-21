@@ -2,80 +2,79 @@
 
 ## Introdução
 
-O Daf Makkot 13a-13b marca a transição entre as discussões sobre as cidades de refúgio e o início do tratado sobre as leis de *malkot* (açoitamento). O texto aborda debates sobre a reintegração dos levitas e do homicida involuntário após o exílio, além de apresentar a Mishná que enumera os casos em que se aplica a pena de açoitamento. A Guemará aprofunda as bases e limites dessa punição, discutindo as opiniões de diferentes sábios sobre quem é passível de *malkot* e as razões para tal.
+O Daf Makkot 13a-13b marca a transição entre as discussões sobre as cidades de refúgio e o início do estudo das leis de malquiyot (açoitamento). O texto aborda debates entre os sábios sobre restituição de status e direitos após o exílio, além de apresentar uma lista detalhada de transgressões que acarretam a pena de açoitamento, discutindo também os fundamentos haláchicos para a aplicação dessa punição.
 
 ---
 
-## 1. Disputa sobre a Reintegração dos Levitas e do Homicida Involuntário
+## 1. Restituição de Direitos após o Exílio
 
-- **Reintegração dos Levitas:**  
-  - *Rabbi Yehuda* afirma que, ao retornarem das cidades de refúgio, os levitas recebiam de volta seus salários.
-  - *Rabbi Meir* discorda, dizendo que não recebiam salários, mas podiam retornar à posição de autoridade anterior.
-  - A Guemará debate se a disputa se refere a seis ou quarenta e duas cidades, e como interpretar os versículos relevantes.
+### 1.1. Salário dos Levitas
+- **Debate entre Rabi Yehuda e Rabi Meir:**  
+  - Rabi Yehuda: Os levitas recebiam salário durante o exílio.
+  - Rabi Meir: Não recebiam salário.
+- **Discussão Talmúdica:**  
+  - A controvérsia se refere a diferentes interpretações do termo "lachem" ("para vocês") nas Escrituras, se indica apenas subsistência ou todas as necessidades.
 
-- **Retorno à Autoridade:**  
-  - A discussão se estende ao retorno do homicida involuntário à sua posição de liderança anterior, com opiniões divergentes entre Rabbi Meir e Rabbi Yehuda.
-  - A análise textual dos versículos determina se o retorno é apenas à família ou também à posse ancestral.
+### 1.2. Retorno a Posições de Liderança
+- **Rabi Meir:** O exilado pode retornar à posição de liderança que ocupava antes.
+- **Rabi Yehuda:** Não retorna à posição anterior.
+- **Base textual:**  
+  - O versículo "e retornará à sua família e à herança de seus pais" é interpretado de formas distintas: apenas à família (Rabi Yehuda) ou também à posição herdada dos pais (Rabi Meir).
 
-- **Aplicação ao Homicida Involuntário:**  
-  - O texto compara o retorno do homicida involuntário à sua terra natal com o retorno dos levitas, discutindo se ele retoma também as posses herdadas por seus antepassados.
-
----
-
-## 2. Mishná: Casos de Pessoas Passíveis de Açoitamento (*Malkot*)
-
-- **Relações Proibidas:**  
-  - Lista de relações incestuosas e proibidas que acarretam a pena de *malkot*, como relações com irmã, cunhada, mulher menstruada, entre outras.
-
-- **Casamentos Proibidos:**  
-  - Casos de casamentos proibidos para cohanim (sacerdotes), como viúva com o sumo sacerdote, divorciada ou chalutzá com cohen comum, mamzeret e netina com israelita, e vice-versa.
-
-- **Transgressões Relacionadas à Pureza e Sacrifícios:**  
-  - Comer alimentos sagrados em estado de impureza, entrar no Templo impuro, comer gordura proibida, sangue, restos sacrificiais, e sacrifícios inválidos.
-
-- **Outras Proibições:**  
-  - Sacrificar ou oferecer fora do Templo, comer chametz em Pessach, trabalhar ou comer em Yom Kipur, fabricar óleo ou incenso sagrado, ungir-se com óleo da unção, comer animais impuros, tevel (produtos agrícolas não dizimados), e outros casos.
-
-- **Quantidade para Incorrer em Pena:**  
-  - Debate entre *Rabbi Shimon* (qualquer quantidade) e os *Chachamim* (mínimo de um kezait) sobre a quantidade de alimento proibido que acarreta punição.
+### 1.3. Aplicação ao Homicida em Exílio
+- O mesmo debate se aplica ao homicida involuntário que retorna do exílio: se ele readquire todos os direitos anteriores ou apenas parte deles.
 
 ---
 
-## 3. Guemará: Quem é Passível de *Malkot*?
+## 2. Início das Leis de Malquiyot (Açoitamento)
 
-- **Exclusão dos Casos de Pena de Morte:**  
-  - A Mishná lista apenas os casos de *karet* (exclusão espiritual), não os de pena de morte pelo tribunal.
+### 2.1. Lista das Transgressões que Geram Malquiyot
+- Relações proibidas (incestos e uniões ilícitas).
+- Consumo de alimentos proibidos (sangue, gordura, sacrifícios inválidos, animais impuros).
+- Violação de leis do Templo (entrada ou consumo em estado de impureza).
+- Realização de sacrifícios fora do Templo.
+- Consumo de chametz em Pessach.
+- Trabalho em Yom Kipur.
+- Uso indevido de óleo de unção e incenso sagrado.
+- Consumo de tevel (produtos agrícolas não dizimados), maaser rishon sem separação de terumá, maaser sheni e hekdesh não redimidos.
 
-- **Debate entre Rabbi Ishmael e Rabbi Akiva:**  
-  - *Rabbi Ishmael*: Tanto quem é passível de *karet* quanto de pena de morte pode receber *malkot*.
-  - *Rabbi Akiva*: Apenas quem é passível de *karet* pode receber *malkot*; quem é passível de pena de morte não.
-
-- **Justificativas Textuais:**  
-  - Rabbi Ishmael baseia-se em versículos que conectam punições da Torá à aplicação de *malkot*.
-  - Rabbi Akiva utiliza o princípio de “kedei rish’ato” (apenas uma punição por transgressão), evitando dupla penalidade.
-
-- **Casos Específicos e Exceções:**  
-  - Discussão sobre proibições que envolvem mandamentos positivos (*aseh*), proibições sem ação física, e proibições ligadas a mandamentos reparadores.
-  - Debate sobre a necessidade de advertência prévia (*hatra’ah*) para incorrer em *karet* ou *malkot*.
+### 2.2. Quantidade Mínima para Incorrer em Malquiyot
+- **Rabi Shimon:** Qualquer quantidade (kol shehu) de tevel já torna a pessoa passível de açoitamento.
+- **Chachamim:** Apenas se consumir o volume de uma azeitona (kezait).
+- **Discussão:**  
+  - Rabi Shimon argumenta que, assim como comer uma formiga inteira já é punível, o mesmo se aplica a um grão de trigo inteiro.
 
 ---
 
-## 4. Princípios Gerais Derivados
+## 3. Quem Recebe Malquiyot? – Discussão Haláchica
 
-- **Não se pune duplamente:**  
-  - O princípio de que não se pode aplicar duas punições (por exemplo, morte e *malkot*) para a mesma transgressão.
+### 3.1. Diferença entre Chayavei Karet e Chayavei Mitot Beit Din
+- **Rabi Yishmael:** Tanto quem é passível de karet quanto de pena de morte pelo tribunal pode receber malquiyot.
+- **Rabi Akiva:** Apenas quem é passível de karet pode receber malquiyot, pois se fizerem teshuvá, são perdoados pelo Tribunal Celestial; já os passíveis de pena de morte não recebem malquiyot.
 
-- **Diferença entre *karet* e pena de morte:**  
-  - *Karet* pode ser substituído por *malkot* se houver arrependimento, mas a pena de morte não.
+### 3.2. Fundamentação dos Versículos
+- **Rabi Yishmael:** Baseia-se em versículos que associam punições da Torá à aplicação de malquiyot.
+- **Rabi Akiva:** Usa o versículo "kedei rishato" ("conforme sua maldade") para ensinar que não se pode punir duplamente por dois delitos decorrentes do mesmo ato.
 
-- **Advertência e sua Relevância:**  
-  - Para *karet*, a advertência pode não ser necessária, enquanto para *malkot* sim.
+### 3.3. Limitações e Exceções
+- Discussão sobre quais tipos de proibições (lav) geram malquiyot:  
+  - Proibições ligadas a mandamentos positivos (lav hanitak le'asseh) ou sem ação (lav she'ein bo ma'aseh) não geram malquiyot.
+- Debate sobre a necessidade de advertência (hatra'ah) para punições de karet.
 
-- **Casos de exceção:**  
-  - Algumas transgressões, como não realizar o sacrifício de Pessach ou a circuncisão, não têm advertência explícita, mas ainda assim acarretam punição.
+---
+
+## 4. Análise Profunda das Fontes e Lógicas
+
+### 4.1. Derivações Textuais
+- Uso de analogias entre diferentes versículos para determinar a abrangência das punições.
+- Discussão sobre a diferença entre punições terrenas (Beit Din) e celestiais.
+
+### 4.2. Casos Específicos
+- Exemplo de Pesach e Brit Milá: punição de karet mesmo sem advertência explícita.
+- Relação entre leis de idolatria e outras proibições para determinar a necessidade de advertência.
 
 ---
 
 ## Conclusão e Reflexão
 
-O Daf Makkot 13a-13b aprofunda a compreensão das penas de *malkot* e suas relações com outras punições da Torá. O texto evidencia a preocupação rabínica em garantir justiça e proporcionalidade, evitando punições duplas e estabelecendo critérios claros para a aplicação do açoitamento. O debate entre os sábios revela a complexidade das leis penais judaicas e a busca constante por equilíbrio entre rigor e misericórdia. O estudo deste daf nos convida a refletir sobre a importância da intenção, do arrependimento e da advertência no processo de responsabilização, valores que continuam relevantes para a ética e a justiça contemporâneas.
+O Daf Makkot 13a-13b aprofunda o entendimento sobre a reintegração social e religiosa após o exílio, mostrando como a Torá e os Sábios equilibram justiça, misericórdia e ordem social. Ao iniciar o estudo das leis de malquiyot, o Talmud revela a complexidade das punições na Halachá, destacando a importância da intenção, da advertência e da natureza da transgressão. O debate entre Rabi Akiva e Rabi Yishmael exemplifica a busca constante por justiça proporcional e pela possibilidade de arrependimento e perdão, valores centrais na tradição judaica.

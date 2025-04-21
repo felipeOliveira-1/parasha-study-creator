@@ -34,18 +34,18 @@ pip install -r requirements.txt
   ```
 
 ### 4. Personalize o formato do estudo (opcional)
-- Edite o arquivo `studies/EXEMPLO_FORMATO.md` para definir o modelo, tópicos, citações e sugestões práticas que deseja em todos os estudos gerados.
+- Edite o arquivo `studies/modelos/EXEMPLO_FORMATO.md` para definir o modelo, tópicos, citações e sugestões práticas que deseja em todos os estudos gerados.
 
 ### 5. Inicie o servidor MCP antes de gerar estudos
 Antes de rodar o script principal, é necessário iniciar o servidor MCP manualmente em um terminal separado:
 ```bash
-python mcp_server.py
+python src/mcp_server.py
 ```
 Mantenha esse terminal aberto enquanto utiliza o sistema.
 
 ### 6. Gerando um estudo ou resumo do Daf Yomi
 ```bash
-python criar_estudo.py
+python src/criar_estudo.py
 ```
 Você verá o seguinte menu:
 
@@ -60,21 +60,27 @@ Digite 1 ou 2:
 - Para Parashá: digite `1` e siga como antes (nome da porção, ex: Shemini). O estudo será salvo em `studies/NOME_DA_PORCAO.md`.
 - Para Daf Yomi: digite `2` e informe o Daf (ex: `Makkot 7`). O resumo será salvo em `studies/Makkot_7.md`.
 
-O resumo do Daf Yomi seguirá o modelo de `EXEMPLO_DAF_YOMI.md` (totalmente editável).
+O resumo do Daf Yomi seguirá o modelo de `studies/modelos/EXEMPLO_DAF_YOMI.md` (totalmente editável).
 
 ---
 
 ## 🗂️ Estrutura do Projeto
 ```
 parasha-study-creator/
-├── criar_estudo.py           # Script principal para gerar estudos
-├── mcp_server.py             # Servidor MCP (Model Context Protocol)
+├── src/
+│   ├── criar_estudo.py           # Script principal para gerar estudos
+│   └── mcp_server.py             # Servidor MCP (Model Context Protocol)
 ├── requirements.txt          # Dependências Python
 ├── .env                      # Variáveis sensíveis (OpenAI API Key)
+├── config/
+│   └── mcp_config.json           # Configurações do MCP
+├── docs/
+│   └── sefaria.md                # Documentação extra
 ├── studies/
-│   ├── EXEMPLO_FORMATO.md    # Modelo de formatação do estudo da Parashá
-│   ├── EXEMPLO_DAF_YOMI.md   # Modelo de resumo do Daf Yomi (editável)
-│   └── <Estudo>.md           # Estudos gerados (Parashá ou Daf Yomi)
+│   ├── modelos/
+│   │   ├── EXEMPLO_FORMATO.md    # Modelo de formatação do estudo da Parashá
+│   │   └── EXEMPLO_DAF_YOMI.md   # Modelo de resumo do Daf Yomi (editável)
+│   └── <Estudo>.md               # Estudos gerados (Parashá ou Daf Yomi)
 └── README.md
 ```
 
@@ -91,9 +97,9 @@ parasha-study-creator/
 ---
 
 ## 🛠️ Personalização Avançada
-- **Quer mudar o formato dos estudos da Parashá?** Basta editar `studies/EXEMPLO_FORMATO.md`.
-- **Quer mudar o formato do resumo do Daf Yomi?** Edite `EXEMPLO_DAF_YOMI.md` na raiz do projeto.
-- **Quer mudar o prompt/contexto?** Edite o bloco de prompt em `mcp_server.py`.
+- **Quer mudar o formato dos estudos da Parashá?** Basta editar `studies/modelos/EXEMPLO_FORMATO.md`.
+- **Quer mudar o formato do resumo do Daf Yomi?** Edite `studies/modelos/EXEMPLO_DAF_YOMI.md`.
+- **Quer mudar o prompt/contexto?** Edite o bloco de prompt em `src/mcp_server.py`.
 - **Quer gerar estudos para todas as parashiot de uma vez?** Peça por um script de automação!
 
 ---
