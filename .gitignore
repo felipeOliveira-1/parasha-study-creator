@@ -28,8 +28,7 @@ build/
 *.cfg
 
 # Estudos gerados (exceto modelo de exemplo)
-studies/*.md
-!studies/EXEMPLO_FORMATO.md
+
 
 # Cache e dados temporários
 parasha_cache.json

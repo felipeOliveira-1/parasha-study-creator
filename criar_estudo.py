@@ -4,6 +4,8 @@ import subprocess
 import sys
 import time
 
+print("[DEBUG] CRIAR_ESTUDO.PY INICIADO")
+
 MCP_URL = "http://localhost:8000/"
 
 
@@ -65,6 +67,7 @@ def main():
                 print("❌ Não foi possível iniciar o servidor MCP.")
                 return
         print(f"Gerando resumo do Daf Yomi: {daf} ...")
+        print(f"[DEBUG] Chamando generate_daf_yomi_summary com: {daf}")
         body = {
             "tool": "generate_daf_yomi_summary",
             "args": {"daf": daf}
@@ -72,6 +75,7 @@ def main():
         try:
             resp = requests.post(MCP_URL, json=body, timeout=120)
             data = resp.json()
+            print(f"[DEBUG] Resultado da função: {data}")
             if data.get("success"):
                 print(f"✅ Resumo criado com sucesso: {data['file']}")
             else:

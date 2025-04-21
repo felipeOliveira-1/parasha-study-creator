@@ -36,7 +36,14 @@ pip install -r requirements.txt
 ### 4. Personalize o formato do estudo (opcional)
 - Edite o arquivo `studies/EXEMPLO_FORMATO.md` para definir o modelo, tópicos, citações e sugestões práticas que deseja em todos os estudos gerados.
 
-### 5. Gerando um estudo ou resumo do Daf Yomi
+### 5. Inicie o servidor MCP antes de gerar estudos
+Antes de rodar o script principal, é necessário iniciar o servidor MCP manualmente em um terminal separado:
+```bash
+python mcp_server.py
+```
+Mantenha esse terminal aberto enquanto utiliza o sistema.
+
+### 6. Gerando um estudo ou resumo do Daf Yomi
 ```bash
 python criar_estudo.py
 ```
@@ -77,7 +84,7 @@ parasha-study-creator/
 - O usuário executa `criar_estudo.py` e escolhe:
   - **[1] Parashá da semana**: informa o nome da porção e recebe um estudo aprofundado, seguindo o modelo de `EXEMPLO_FORMATO.md`.
   - **[2] Daf Yomi**: informa o Daf (ex: Makkot 7) e recebe um resumo detalhado, estruturado em tópicos, conforme `EXEMPLO_DAF_YOMI.md`.
-- O script garante que o servidor MCP está rodando e faz a requisição.
+- O usuário deve garantir que o servidor MCP (`mcp_server.py`) está rodando manualmente antes de executar o `criar_estudo.py`. O script principal faz a requisição ao MCP já em execução.
 - O servidor lê o arquivo de exemplo correspondente e instrui a IA a seguir exatamente aquele modelo, trazendo sempre referências, estrutura e sugestões práticas.
 - O estudo/resumo é salvo automaticamente em Markdown.
 
