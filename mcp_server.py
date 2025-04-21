@@ -14,6 +14,74 @@ STUDIES_DIR = "studies"
 os.makedirs(STUDIES_DIR, exist_ok=True)
 
 # Função para buscar texto da Sefaria
+
+def generate_daf_yomi_summary(daf_yomi):
+    """
+    Gera um resumo detalhado do Daf Yomi (Talmud) em tópicos, baseado no modelo EXEMPLO_DAF_YOMI.md.
+    """
+    # Busca o texto do daf no Sefaria (prioridade para português, depois inglês)
+    sefaria_refs = [f"{daf_yomi}", f"{daf_yomi}a", f"{daf_yomi}b"]
+    text_found = None
+    for ref in sefaria_refs:
+        result = search_sefaria(ref, lang="he")
+        if result.get("found") and result.get("text"):
+            text_found = result["text"]
+            break
+        result = search_sefaria(ref, lang="en")
+        if result.get("found") and result.get("text"):
+            text_found = result["text"]
+            break
+    if not text_found:
+        return {"error": f"Não foi possível encontrar o texto do Daf Yomi '{daf_yomi}' no Sefaria."}
+    # Lê o modelo de EXEMPLO_DAF_YOMI.md
+    try:
+        with open("EXEMPLO_DAF_YOMI.md", "r", encoding="utf-8") as f:
+            exemplo_daf = f.read()
+    except Exception:
+        exemplo_daf = ""  # fallback: sem modelo
+    prompt = f"""
+Você é um mestre em Talmud, com vasta experiência didática. Seu objetivo é criar um resumo didático, detalhado e organizado do Daf Yomi solicitado, seguindo exatamente o modelo abaixo:
+
+---
+{exemplo_daf}
+---
+
+Siga a estrutura, linguagem, divisão em tópicos e tom do exemplo. O resumo deve conter:
+- Introdução
+- Tópicos numerados e destacados
+- Conclusão/reflexão
+- Linguagem clara, didática e fiel ao texto do daf
+
+Texto do Daf Yomi para resumir:
+{text_found}
+
+Gere apenas o resumo, sem comentários extras.
+"""
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return {"error": "OPENAI_API_KEY não configurada no .env"}
+    try:
+        client = openai.OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.15,
+            max_tokens=4000
+        )
+        content = response.choices[0].message.content
+        # Salva automaticamente o resumo
+        filename = os.path.join(STUDIES_DIR, f"{daf_yomi.replace(' ', '_')}.md")
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(content)
+        return {"success": True, "study_md": content, "file": filename}
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        return {"error": str(e), "traceback": tb}
+
 def search_sefaria(reference, lang="he"):
     url = f"https://www.sefaria.org/api/texts/{reference}?lang={lang}"
     try:
@@ -124,6 +192,12 @@ class MCPHandler(BaseHTTPRequestHandler):
                 result = {"error": "Parâmetro 'parasha' é obrigatório."}
             else:
                 result = generate_parasha_study_ptbr(parasha)
+        elif tool == "generate_daf_yomi_summary":
+            daf = args.get("daf")
+            if not daf:
+                result = {"error": "Parâmetro 'daf' é obrigatório."}
+            else:
+                result = generate_daf_yomi_summary(daf)
         else:
             result = {"error": "Ferramenta desconhecida"}
         self.send_response(200)
