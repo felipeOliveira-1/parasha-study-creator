@@ -40,7 +40,7 @@ def main():
             return
         if not is_mcp_running():
             if not start_mcp_server():
-                print("❌ Não foi possível iniciar o servidor MCP.")
+                print("❌ Não foi possível iniciar o servidorclear MCP.")
                 return
         print(f"Gerando estudo para: {parasha} ...")
         body = {
