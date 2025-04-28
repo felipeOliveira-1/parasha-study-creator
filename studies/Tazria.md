@@ -24,28 +24,20 @@ A Parashá Tazria (Vayikra/Levítico 12:1–13:59) trata principalmente das leis
 - **Autodomínio da fala:** O Mussar enfatiza a importância de controlar a língua, como ensinado por Rabenu Yonah (Shaarei Teshuvá 3:218), pois a fala pode construir ou destruir mundos.
 - **Isolamento como oportunidade:** O período de isolamento do metzora é visto como um convite à introspecção, autoconhecimento e crescimento espiritual.
 
-**5. Guematria – Segredos Numéricos**
-
-- **Metzora (מצורע):** Valor numérico = 400  
-- **Shalom (שלום):** Valor numérico = 376  
-- A diferença, **24**, é o mesmo número de livros do **Tanach** (a Bíblia Hebraica).  
-- Isso sugere que a ausência de *Shalom* (paz) pode levar ao estado espiritual de *Metzora* (isolamento e impureza), e que o caminho para a reparação passa pelo reencontro com os **24 livros da Torá** — ou seja, com o estudo, a sabedoria e a conexão com a vontade divina.
-- **Tazria (תזריע):** Valor numérico = 592. 
-
-**6. Rashi, Tanya e Baal HaSulam – Conexão dos Níveis de Interpretação**
+**5. Rashi, Tanya e Baal HaSulam – Conexão dos Níveis de Interpretação**
 
 - **Rashi (Vayikra 13:2):** Explica que tzaraat é um sinal para Israel, não uma doença comum, e ocorre por transgressões específicas, especialmente lashon hara.
 - **Tanya:** Destaca que a fala é expressão da alma divina; sua corrupção afeta todos os níveis do ser.
 - **Baal HaSulam:** Enfatiza que a verdadeira cura é a reintegração à coletividade e ao propósito divino.
 
-**7. Sugestões Práticas para o Estudo e Vida Espiritual**
+**6. Sugestões Práticas para o Estudo e Vida Espiritual**
 
 - **Prática de Shemirat HaLashon:** Dedique tempo diário para estudar as leis de lashon hara (Chafetz Chaim) e pratique o silêncio consciente.
 - **Reflexão diária:** Reserve momentos de introspecção, especialmente ao sentir-se isolado ou desconectado, buscando identificar padrões de fala ou pensamento que precisam de correção.
 - **Teshuvá ativa:** Repare relações danificadas por palavras, buscando reconciliação e promovendo shalom.
 - **Estudo de Zohar:** Leia trechos do Zohar sobre Tazria, mesmo em tradução, para internalizar a dimensão espiritual da pureza.
 
-**8. Referências Consultadas**
+**7. Referências Consultadas**
 
 - Torá: Vayikra/Levítico 12–13
 - Shulchan Aruch, Yoreh De’ah 194
